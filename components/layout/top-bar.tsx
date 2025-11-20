@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 
 export default function TopBar() {
   return (
-    <div className="fixed w-[calc(100%-16rem)] bg-card border-b border-border px-6 py-4 flex items-center justify-between gap-4">
+    <div className="fixed w-[calc(100%-16rem)] bg-card border-b border-border px-6 py-4 flex items-center justify-between gap-4 z-50">
       <div className="flex-1 max-w-md">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
