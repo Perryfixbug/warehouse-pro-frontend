@@ -1,9 +1,10 @@
-export async function fetchServer(endpoint: string, options: RequestInit = {}) {
+export async function fetchServer(endpoint: string, method = "GET", options: RequestInit = {}) {
   const url = `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`  
   try {
     const res = await fetch(url, {
       ...options,
-      // server fetch cache theo yêu cầu
+      method: method,
+      headers: { "Content-Type": "application/json" },
       cache: "no-store", 
       next: { revalidate: 0 },
     });

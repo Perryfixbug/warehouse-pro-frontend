@@ -70,10 +70,7 @@ export default function ProductManagement() {
 
   useEffect(()=>{
     const fetchProducts = async () =>{
-      const data = await fetchClient("/products",  {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const data = await fetchClient("/products");
       setProducts(data)
     }
     fetchProducts()
@@ -167,7 +164,7 @@ export default function ProductManagement() {
                     </td> */}
                     <td className="py-3 px-4 text-left text-muted-foreground">{product.detail}</td>
                     <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-center gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
