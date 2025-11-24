@@ -37,10 +37,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={`font-sans antialiased h-screen w-screen`}>
+      <body className={`font-sans antialiased h-screen`}>
         <div className="flex">
           <Sidebar />
-          <div className='ml-64 w-full h-full'>
+          <div className='ml-64 w-[calc(100%-16rem)] h-full'>
             <TopBar />
             <div className='mt-18'>
               {children}

@@ -8,7 +8,7 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/products', label: 'Sản phẩm', icon: Package },
   { href: '/orders', label: 'Đơn hàng', icon: ShoppingCart },
-  { href: '/alerts', label: 'Cảnh báo', icon: AlertCircle },
+  // { href: '/alerts', label: 'Cảnh báo', icon: AlertCircle },
   { href: '/users', label: 'Người dùng', icon: Users },
   { href: '/settings', label: 'Cài đặt', icon: Settings },
 ]
