@@ -5,7 +5,20 @@ import { Button } from '@/components/ui/button'
 import { X, Edit2, Trash2 } from 'lucide-react'
 import { Product } from '@/type/type'
 
-export function ProductModal({ product, onClose }: { product: Product; onClose: () => void }) {
+export function ProductModal(
+  { product, onDelete, onClose }: 
+  { 
+    product: Product; 
+    onDelete: (id: number) => void,
+    onClose: () => void
+  }) {
+  // Tính status dựa trên quantity
+  const getStatus = () => {
+    if (product.quantity <= 0) return 'critical'
+    if (product.quantity <= 10) return 'low-stock'
+    return 'in-stock'
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'in-stock':
@@ -32,14 +45,16 @@ export function ProductModal({ product, onClose }: { product: Product; onClose: 
     }
   }
 
+  const status = getStatus()
+
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-row items-center justify-between pb-4">
-          {/* <div>
-            <CardTitle>{product.name}</CardTitle>
-            <CardDescription>{product.supplier}</CardDescription>
-          </div> */}
+          <div>
+            <CardDescription>Mã: {product.product_code}</CardDescription>
+            <CardTitle className='text-xl'>{product.name}</CardTitle>
+          </div>
           <button
             onClick={onClose}
             className="p-1 hover:bg-muted rounded-lg transition-colors"
@@ -49,13 +64,15 @@ export function ProductModal({ product, onClose }: { product: Product; onClose: 
         </CardHeader>
 
         <CardContent className="space-y-4">
+          {/* Status */}
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Trạng Thái:</span>
-            {/* <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(product.status)}`}>
-              {getStatusLabel(product.status)}
-            </span> */}
+            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(status)}`}>
+              {getStatusLabel(status)}
+            </span>
           </div>
 
+          {/* Thông tin cơ bản */}
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
             <div>
               <p className="text-sm text-muted-foreground">Đơn Vị</p>
@@ -72,33 +89,35 @@ export function ProductModal({ product, onClose }: { product: Product; onClose: 
               <p className="text-sm text-muted-foreground">Tồn Kho Hiện Tại</p>
               <p className="text-lg font-semibold text-primary">{product.quantity}</p>
             </div>
-            {/* <div>
-              <p className="text-sm text-muted-foreground">Tối Thiểu</p>
-              <p className="text-lg font-semibold">{product.minQuantity}</p>
-            </div> */}
+            <div>
+              <p className="text-sm text-muted-foreground">Giá Trị Tồn Kho</p>
+              <p className="text-lg font-semibold text-primary">
+                {(product.quantity * product.price_per_unit).toLocaleString('vi-VN')} VNĐ
+              </p>
+            </div>
           </div>
 
+          {/* Mô tả chi tiết */}
           <div className="pt-4 border-t border-border">
-            <p className="text-sm text-muted-foreground mb-2">Giá Trị Tồn Kho</p>
-            <p className="text-2xl font-bold text-primary">
-              {(product.quantity * product.price_per_unit).toLocaleString('vi-VN')} VNĐ
-            </p>
+            <p className="text-sm text-muted-foreground mb-2">Mô tả</p>
+            <p className="text-base text-foreground">{product.detail}</p>
           </div>
 
+          {/* Action buttons */}
           <div className="flex gap-2 pt-4">
-            <Button variant="outline" className="flex-1 gap-2">
-              <Edit2 size={16} />
-              Chỉnh Sửa
-            </Button>
-            <Button variant="outline" className="flex-1 gap-2 text-destructive hover:text-destructive">
+            <Button 
+              variant="outline" 
+              className="flex-1 gap-2 text-destructive hover:text-destructive"
+              onClick={()=>{
+                onDelete(product.id)
+                onClose()
+              }}
+            >
               <Trash2 size={16} />
               Xóa
             </Button>
           </div>
 
-          <Button variant="outline" className="w-full" onClick={onClose}>
-            Đóng
-          </Button>
         </CardContent>
       </Card>
     </div>

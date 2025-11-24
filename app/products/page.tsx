@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,28 +17,35 @@ export default function ProductManagement() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'in-stock' | 'low-stock' | 'critical'>('all')
 
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = useMemo(()=> products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesSearch
-  })
+  }),[products, filterStatus])
+  // const filteredProducts = useMemo(()=>{
+  //   console.log("Re calculate")
+  //   return products
+  // }, [products, filterStatus])
 
-  const handleAddProduct = (data: Omit<Product, 'id'>) => {
-    const newProduct: Product = {
-      ...data,
-      id: Math.max(...products.map(p => p.id), 0) + 1,
-    }
-    setProducts([...products, newProduct])
+  const handleAddProduct = async (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
+    const newProduct = await fetchClient("/products", "POST", {
+      body: JSON.stringify({product: data})
+    })
+    setProducts(prev => [...prev, newProduct])
     setIsFormOpen(false)
   }
 
-  const handleUpdateProduct = (data: Omit<Product, 'id'>) => {
+  const handleUpdateProduct = async (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
     if (selectedProduct) {
-      setProducts(products.map(p => p.id === selectedProduct.id ? { ...data, id: p.id } : p))
+      const changedProduct = await fetchClient(`/products/${selectedProduct.id}`, "PUT", {
+        body: JSON.stringify({product: data})
+      })
+      setProducts(products.map(p => p.id === changedProduct.id ? changedProduct : p))
       setSelectedProduct(null)
     }
   }
 
-  const handleDeleteProduct = (id: number) => {
+  const handleDeleteProduct = async (id: number) => {
+    await fetchClient(`/products/${id}`, "DELETE")
     setProducts(products.filter(p => p.id !== id))
   }
 
@@ -228,6 +235,7 @@ export default function ProductManagement() {
       {selectedProduct && !isFormOpen && (
         <ProductModal
           product={selectedProduct}
+          onDelete={handleDeleteProduct}
           onClose={() => setSelectedProduct(null)}
         />
       )}

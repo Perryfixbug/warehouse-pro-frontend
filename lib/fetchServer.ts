@@ -9,11 +9,12 @@ export async function fetchServer(endpoint: string, method = "GET", options: Req
       next: { revalidate: 0 },
     });
 
+    const payload = await res.json()
     if (!res.ok) {
-      throw new Error(`Server Fetch Error: ${res.status}`);
+      throw new Error(`Server Fetch Error: ${payload.errors}`);
     }
 
-    return await res.json();
+    return payload.data;
   } catch (error) {
     console.error("fetchServer Error:", error);
     throw error;

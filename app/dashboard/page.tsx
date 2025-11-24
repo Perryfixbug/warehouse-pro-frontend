@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { TrendingUp, TrendingDown, AlertTriangle, Package, Plus } from 'lucide-react'
 import { InventoryChart } from '@/components/dashboard/inventory-chart'
-import { ProductList } from '@/components/dashboard/product-list'
+import { ProductList } from '@/components/products/product-list'
 import { AlertList } from '@/components/dashboard/alert-list'
 import { QuickActions } from '@/components/dashboard/quick-actions'
 import { fetchClient } from '@/lib/fetchClient'

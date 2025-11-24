@@ -6,10 +6,9 @@ import { Input } from '@/components/ui/input'
 import { X } from 'lucide-react'
 import { Product } from '@/type/type'
 
-
 interface ProductFormProps {
   product: Product | null
-  onSave: (data: Omit<Product, 'id'>) => void
+  onSave: (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => void
   onClose: () => void
 }
 
@@ -17,39 +16,31 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
   const [formData, setFormData] = useState({
     name: '',
     unit: '',
-    price: 0,
+    price_per_unit: 0,
     quantity: 0,
-    minQuantity: 0,
-    supplier: '',
+    detail: '',
+    product_code: '',
   })
 
   useEffect(() => {
     if (product) {
-      const { id, status, ...rest } = product
+      const { id, created_at, updated_at, ...rest } = product
       setFormData(rest)
     }
   }, [product])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'price' || name === 'quantity' || name === 'minQuantity' ? Number(value) : value,
+      [name]: name === 'price_per_unit' || name === 'quantity' ? Number(value) : value,
     }))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
-    // Determine status based on quantity
-    let status: 'in-stock' | 'low-stock' | 'critical' = 'in-stock'
-    if (formData.quantity === 0) status = 'critical'
-    else if (formData.quantity <= formData.minQuantity) status = 'low-stock'
-
-    onSave({
-      ...formData,
-      status,
-    })
+    onSave(formData)
+    onClose()
   }
 
   return (
@@ -96,13 +87,13 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-foreground">Nhà Cung Cấp *</label>
+              <label className="text-sm font-medium text-foreground">Mã Sản Phẩm *</label>
               <Input
                 type="text"
-                name="supplier"
-                value={formData.supplier}
+                name="product_code"
+                value={formData.product_code}
                 onChange={handleChange}
-                placeholder="Tên nhà cung cấp"
+                placeholder="VT1000"
                 required
                 className="mt-1"
               />
@@ -110,11 +101,22 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
           </div>
 
           <div>
+            <label className="text-sm font-medium text-foreground">Chi Tiết</label>
+            <textarea
+              name="detail"
+              value={formData.detail}
+              onChange={handleChange}
+              placeholder="Mô tả sản phẩm"
+              className="mt-1 w-full border rounded px-2 py-1"
+            />
+          </div>
+
+          <div>
             <label className="text-sm font-medium text-foreground">Giá Nhập (VNĐ) *</label>
             <Input
               type="number"
-              name="price"
-              value={formData.price}
+              name="price_per_unit"
+              value={formData.price_per_unit}
               onChange={handleChange}
               placeholder="0"
               required
@@ -122,32 +124,17 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-foreground">Tồn Kho *</label>
-              <Input
-                type="number"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                placeholder="0"
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-foreground">Tối Thiểu *</label>
-              <Input
-                type="number"
-                name="minQuantity"
-                value={formData.minQuantity}
-                onChange={handleChange}
-                placeholder="0"
-                required
-                className="mt-1"
-              />
-            </div>
+          <div>
+            <label className="text-sm font-medium text-foreground">Tồn Kho *</label>
+            <Input
+              type="number"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              placeholder="0"
+              required
+              className="mt-1"
+            />
           </div>
 
           <div className="flex gap-3 pt-4">
