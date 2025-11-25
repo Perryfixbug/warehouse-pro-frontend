@@ -7,11 +7,10 @@ export async function fetchClient(endpoint: string, method = "GET", options: Req
       headers: { "Content-Type": "application/json" },
       cache: "no-store",
     });
-    const payload = await res.json()
     if (!res.ok) {
-      throw new Error(`Client Fetch Error: ${payload.errors}`);
+      throw new Error(`Client Fetch Error: ${res.status}`);
     }
-    return payload.data;
+    return await res.json();
   } catch (error) {
     console.error("fetchClient Error:", error);
     throw error;

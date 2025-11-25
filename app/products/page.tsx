@@ -17,7 +17,7 @@ export default function ProductManagement() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'in-stock' | 'low-stock' | 'critical'>('all')
 
-  const filteredProducts = useMemo(()=> products.filter(product => {
+  const filteredProducts = useMemo(() => products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesSearch
   }),[products, filterStatus])
@@ -27,18 +27,20 @@ export default function ProductManagement() {
   // }, [products, filterStatus])
 
   const handleAddProduct = async (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
-    const newProduct = await fetchClient("/products", "POST", {
+    const res = await fetchClient("/products", "POST", {
       body: JSON.stringify({product: data})
     })
+    const newProduct = res.data
     setProducts(prev => [...prev, newProduct])
     setIsFormOpen(false)
   }
-
+  
   const handleUpdateProduct = async (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
     if (selectedProduct) {
-      const changedProduct = await fetchClient(`/products/${selectedProduct.id}`, "PUT", {
+      const res = await fetchClient(`/products/${selectedProduct.id}`, "PUT", {
         body: JSON.stringify({product: data})
       })
+      const changedProduct = res.data
       setProducts(products.map(p => p.id === changedProduct.id ? changedProduct : p))
       setSelectedProduct(null)
     }
@@ -49,35 +51,10 @@ export default function ProductManagement() {
     setProducts(products.filter(p => p.id !== id))
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'in-stock':
-        return 'bg-chart-2/10 text-chart-2'
-      case 'low-stock':
-        return 'bg-accent/10 text-accent'
-      case 'critical':
-        return 'bg-destructive/10 text-destructive'
-      default:
-        return 'bg-muted text-muted-foreground'
-    }
-  }
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'in-stock':
-        return 'Còn hàng'
-      case 'low-stock':
-        return 'Gần hết'
-      case 'critical':
-        return 'Sắp hết'
-      default:
-        return 'Khác'
-    }
-  }
-
   useEffect(()=>{
     const fetchProducts = async () =>{
-      const data = await fetchClient("/products");
+      const res = await fetchClient("/products");
+      const data = res.data
       setProducts(data)
     }
     fetchProducts()
@@ -163,12 +140,6 @@ export default function ProductManagement() {
                       đ {product.price_per_unit.toLocaleString('vi-VN')}
                     </td>
                     <td className="py-3 px-4 text-right font-semibold">{product.quantity}</td>
-                    {/* <td className="py-3 px-4 text-right text-muted-foreground">{product.minQuantity}</td> */}
-                    {/* <td className="py-3 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(product.status)}`}>
-                        {getStatusLabel(product.status)}
-                      </span>
-                    </td> */}
                     <td className="py-3 px-4 text-left text-muted-foreground">{product.detail}</td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-center gap-2">

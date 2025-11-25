@@ -1,152 +1,97 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, Edit2, Trash2, Search, Eye, EyeOff, Lock, Shield, Users } from 'lucide-react'
-// import { UserForm } from './user-form'
-// import { UserDetailsModal } from './user-details-modal'
+import { fetchClient } from '@/lib/fetchClient'
+import { User } from '@/type/type'
+import { UserForm } from '@/components/users/user-form'
+import { UserDetailsModal } from '@/components/users/user-details-modal'
 // import { PermissionsModal } from './permissions-modal'
 
-interface User {
-  id: string
-  name: string
-  email: string
-  phone: string
-  role: 'admin' | 'manager' | 'staff'
-  status: 'active' | 'inactive'
-  joinDate: string
-  lastLogin: string
-  permissions: string[]
-}
-
-const initialUsers: User[] = [
-  {
-    id: 'U-001',
-    name: 'Nguyễn Văn A',
-    email: 'admin@warehouse.com',
-    phone: '0987654321',
-    role: 'admin',
-    status: 'active',
-    joinDate: '2023-01-15',
-    lastLogin: '2024-01-15 14:30',
-    permissions: ['view_all', 'manage_products', 'manage_orders', 'manage_users', 'view_reports', 'manage_alerts'],
-  },
-  {
-    id: 'U-002',
-    name: 'Trần Thị B',
-    email: 'manager@warehouse.com',
-    phone: '0912345678',
-    role: 'manager',
-    status: 'active',
-    joinDate: '2023-06-20',
-    lastLogin: '2024-01-15 13:15',
-    permissions: ['view_all', 'manage_products', 'manage_orders', 'view_reports'],
-  },
-  {
-    id: 'U-003',
-    name: 'Lê Văn C',
-    email: 'staff1@warehouse.com',
-    phone: '0923456789',
-    role: 'staff',
-    status: 'active',
-    joinDate: '2023-08-10',
-    lastLogin: '2024-01-15 10:45',
-    permissions: ['view_products', 'view_orders', 'create_orders'],
-  },
-  {
-    id: 'U-004',
-    name: 'Phạm Thị D',
-    email: 'staff2@warehouse.com',
-    phone: '0934567890',
-    role: 'staff',
-    status: 'inactive',
-    joinDate: '2024-01-01',
-    lastLogin: '2024-01-10 09:00',
-    permissions: ['view_products', 'view_orders'],
-  },
-]
-
-const roleColors = {
-  admin: 'bg-destructive/10 text-destructive',
-  manager: 'bg-primary/10 text-primary',
-  staff: 'bg-chart-2/10 text-chart-2',
-}
-
-const roleLabels = {
+// Role labels & colors (bạn có thể chỉnh màu theo Tailwind)
+const roleLabels: Record<string, string> = {
   admin: 'Quản Trị Viên',
   manager: 'Người Quản Lý',
   staff: 'Nhân Viên',
 }
+const roleColors: Record<string, string> = {
+  admin: 'bg-red-100 text-red-800',
+  manager: 'bg-blue-100 text-blue-800',
+  staff: 'bg-green-100 text-green-800',
+}
 
 export default function UserManagement() {
-  const [users, setUsers] = useState<User[]>(initialUsers)
-  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [users, setUsers] = useState<User[]>([])
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [showPermissions, setShowPermissions] = useState(false)
+  const [formOpen, setFormOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'manager' | 'staff'>('all')
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesRole = filterRole === 'all' || user.role === filterRole
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetchClient("/users")
+        const data = res.data
+        setUsers(data)
+      } catch (error) {
+        console.error('Error fetching users', error)
+      }
+    }
+
+    fetchUsers()
+  }, [])
+
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch =
+      u.fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesRole = filterRole === 'all' || u.role === filterRole
     return matchesSearch && matchesRole
   })
 
-  const handleAddUser = (data: Omit<User, 'id' | 'lastLogin'>) => {
-    const newUser: User = {
-      ...data,
-      id: `U-${String(users.length + 1).padStart(3, '0')}`,
-      lastLogin: new Date().toISOString(),
-    }
-    setUsers([...users, newUser])
-    setIsFormOpen(false)
+  const handleAddUser = async (data: Omit<User, 'id'>) => {
+    const res = await fetchClient("/users", "POST", {
+      body: JSON.stringify({ user: data })
+    })
+    const newUser = res.data
+    setUsers(prev=>[newUser, ...prev])
   }
 
-  const handleUpdateUser = (data: Omit<User, 'id' | 'lastLogin'>) => {
-    if (selectedUser) {
-      setUsers(users.map(u => u.id === selectedUser.id
-        ? { ...data, id: u.id, lastLogin: u.lastLogin }
-        : u
-      ))
+  const handleUpdateUser = async (data: Omit<User, 'id' >) => {
+    if(selectedUser){
+      const res = await fetchClient(`/users/${selectedUser.id}`, "PUT", {
+        body: JSON.stringify({user: data})
+      })
+      const changedUser = res.data
+      setUsers(users.map(u=> u.id === changedUser.id ? changedUser : u))
       setSelectedUser(null)
     }
   }
-
-  const handleDeleteUser = (id: string) => {
-    setUsers(users.filter(u => u.id !== id))
-  }
-
-  const handleUpdatePermissions = (permissions: string[]) => {
-    if (selectedUser) {
-      setUsers(users.map(u => u.id === selectedUser.id
-        ? { ...u, permissions }
-        : u
-      ))
-      setShowPermissions(false)
+  const handleDeleteUser = async (id: number) => {
+    if (!confirm('Xóa người dùng này?')) return
+    try {
+      await fetchClient(`/users/${id}`, "DELETE")
+      setUsers(users.filter((u) => u.id !== id))
+    } catch (error) {
+      console.error('Error deleting user', error)
     }
-  }
-
-  const getStatusBadge = (status: string) => {
-    return status === 'active'
-      ? 'bg-chart-2/10 text-chart-2'
-      : 'bg-muted text-muted-foreground'
   }
 
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Quản Lý Người Dùng</h1>
-        <p className="text-muted-foreground">Quản lý tài khoản, phân quyền và quyền truy cập</p>
+        <h1 className="text-3xl font-bold">Quản Lý Người Dùng</h1>
+        <p className="text-muted-foreground">Quản lý tài khoản và vai trò</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <Users size={16} className="text-chart-2" />
               Tổng Người Dùng
             </CardTitle>
@@ -156,64 +101,42 @@ export default function UserManagement() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Shield size={16} className="text-destructive" />
-              Quản Trị Viên
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{users.filter(u => u.role === 'admin').length}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Shield size={16} className="text-primary" />
-              Người Quản Lý
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{users.filter(u => u.role === 'manager').length}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Shield size={16} className="text-chart-2" />
-              Nhân Viên
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{users.filter(u => u.role === 'staff').length}</p>
-          </CardContent>
-        </Card>
+        {['admin', 'manager', 'staff'].map((role) => (
+          <Card key={role}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Shield size={16} className="text-chart-2" />
+                {roleLabels[role]}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">
+                {users.filter((u) => u.role === role).length}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Users Table */}
       <Card>
         <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex-1 w-full md:w-auto">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
-                <Input
-                  placeholder="Tìm kiếm tên, email..."
-                  className="pl-10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
+            <div className="relative w-full md:w-1/3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+              <Input
+                className="pl-10"
+                placeholder="Tìm kiếm tên, email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
 
-            <div className="flex gap-2 w-full md:w-auto">
+            <div className="flex gap-2">
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value as any)}
-                className="px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm"
+                className="px-3 py-2 rounded-lg border bg-background text-foreground text-sm"
               >
                 <option value="all">Tất cả vai trò</option>
                 <option value="admin">Quản Trị Viên</option>
@@ -221,13 +144,9 @@ export default function UserManagement() {
                 <option value="staff">Nhân Viên</option>
               </select>
 
-              <Button
-                onClick={() => {
-                  setSelectedUser(null)
-                  setIsFormOpen(true)
-                }}
-                size="sm"
-                className="gap-2"
+              <Button 
+                className="gap-2" size="sm"
+                onClick={()=>setFormOpen(true)}
               >
                 <Plus size={16} />
                 Thêm Người Dùng
@@ -241,63 +160,53 @@ export default function UserManagement() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Tên</th>
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Email</th>
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Vai Trò</th>
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Trạng Thái</th>
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Ngày Tham Gia</th>
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Lần Đăng Nhập Cuối</th>
-                  <th className="text-right py-3 px-4 font-semibold text-muted-foreground">Hành Động</th>
+                  <th className="py-3 px-4 text-left font-semibold text-muted-foreground">Tên</th>
+                  <th className="py-3 px-4 text-left font-semibold text-muted-foreground">Email</th>
+                  <th className="py-3 px-4 text-left font-semibold text-muted-foreground">SĐT</th>
+                  <th className="py-3 px-4 text-left font-semibold text-muted-foreground">Địa chỉ</th>
+                  <th className="py-3 px-4 text-left font-semibold text-muted-foreground">Vai Trò</th>
+                  <th className="py-3 px-4 text-left font-semibold text-muted-foreground">Ngày Tham Gia</th>
+                  <th className="py-3 px-4 text-center font-semibold text-muted-foreground">Hành Động</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                    <td className="py-3 px-4 font-medium">{user.name}</td>
-                    <td className="py-3 px-4 text-muted-foreground">{user.email}</td>
+                  <tr key={user.id} className="border-b hover:bg-muted/50">
+                    <td className="py-3 px-4 font-medium">{user.fullname}</td>
+                   <td className="py-3 px-4 max-w-[150px] truncate" title={user.email}>{user.email}</td>
+                    <td className="py-3 px-4">{user.phone}</td>
+                    <td className="py-3 px-4 max-w-[200px] truncate" title={user.address}>{user.address}</td>
                     <td className="py-3 px-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${roleColors[user.role]}`}>
                         {roleLabels[user.role]}
                       </span>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(user.status)}`}>
-                        {user.status === 'active' ? 'Hoạt Động' : 'Vô Hiệu Hóa'}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-muted-foreground">
-                      {new Date(user.joinDate).toLocaleDateString('vi-VN')}
-                    </td>
-                    <td className="py-3 px-4 text-muted-foreground text-xs">{user.lastLogin}</td>
+                    <td className="py-3 px-4">{new Date(user.created_at).toLocaleDateString('vi-VN')}</td>
                     <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex justify-center gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => {
-                            setSelectedUser(user)
-                            setShowPermissions(true)
-                          }}
-                          title="Quản lý quyền"
+                          onClick={() => setSelectedUser(user)}
                         >
-                          <Lock size={16} />
+                          <Eye size={16} />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => {
-                            setSelectedUser(user)
-                            setIsFormOpen(true)
-                          }}
+
+                        <Button 
+                          variant="ghost" size="icon"
+                          onClick={()=>{
+                              setFormOpen(true)
+                              setSelectedUser(user)
+                            }
+                          }
                         >
                           <Edit2 size={16} />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          className="text-destructive"
                           onClick={() => handleDeleteUser(user.id)}
                         >
                           <Trash2 size={16} />
@@ -310,42 +219,31 @@ export default function UserManagement() {
             </table>
 
             {filteredUsers.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-6 text-muted-foreground">
                 Không tìm thấy người dùng nào
               </div>
             )}
           </div>
         </CardContent>
 
-        <CardContent className="border-t border-border pt-4">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Hiển thị {filteredUsers.length} / {users.length} người dùng</span>
-          </div>
-        </CardContent>
+        {formOpen && 
+          <UserForm 
+            user={selectedUser}
+            onSave={selectedUser ? handleUpdateUser : handleAddUser}
+            onClose={()=>{
+              setFormOpen(false)
+              setSelectedUser(null)
+            }}
+          />
+        }
+
+        {selectedUser && !formOpen && (
+          <UserDetailsModal
+            user={selectedUser}
+            onClose={() => setSelectedUser(null)}
+          />
+        )}
       </Card>
-
-      {/* Forms & Modals */}
-      {isFormOpen && (
-        <UserForm
-          user={selectedUser}
-          onSave={selectedUser ? handleUpdateUser : handleAddUser}
-          onClose={() => {
-            setIsFormOpen(false)
-            setSelectedUser(null)
-          }}
-        />
-      )}
-
-      {showPermissions && selectedUser && (
-        <PermissionsModal
-          user={selectedUser}
-          onSave={handleUpdatePermissions}
-          onClose={() => {
-            setShowPermissions(false)
-            setSelectedUser(null)
-          }}
-        />
-      )}
     </div>
   )
 }
