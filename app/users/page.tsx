@@ -1,17 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, Edit2, Trash2, Search, Eye, EyeOff, Lock, Shield, Users } from 'lucide-react'
+import { Plus, Edit2, Trash2, Search, Eye, Shield, Users } from 'lucide-react'
 import { fetchClient } from '@/lib/fetchClient'
 import { User } from '@/type/type'
 import { UserForm } from '@/components/users/user-form'
 import { UserDetailsModal } from '@/components/users/user-details-modal'
-// import { PermissionsModal } from './permissions-modal'
 
-// Role labels & colors (bạn có thể chỉnh màu theo Tailwind)
 const roleLabels: Record<string, string> = {
   admin: 'Quản Trị Viên',
   manager: 'Người Quản Lý',

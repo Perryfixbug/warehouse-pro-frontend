@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 export function AlertList({ limit }: { limit?: number }) {
   const [alerts, setAlerts] = useState([])
-  const displayAlerts = useMemo(() => limit ? alerts.slice(0, limit) : alerts, [alerts])
+  const displayAlerts = useMemo(() => limit ? alerts.slice(0, limit) : alerts, [alerts, limit])
 
 
   useEffect(()=>{

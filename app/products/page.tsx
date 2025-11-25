@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Edit2, Trash2, Plus, Search, Upload, Filter, Eye } from 'lucide-react'
@@ -20,7 +20,7 @@ export default function ProductManagement() {
   const filteredProducts = useMemo(() => products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesSearch
-  }),[products, filterStatus])
+  }),[products, searchQuery])
   // const filteredProducts = useMemo(()=>{
   //   console.log("Re calculate")
   //   return products

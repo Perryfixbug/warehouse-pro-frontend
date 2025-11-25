@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { X } from 'lucide-react'
@@ -22,13 +22,6 @@ export function UserForm({ user, onSave, onClose }: UserFormProps) {
     birth_date: new Date().toISOString().split('T')[0],
     created_at: ''
   })
-
-  useEffect(() => {
-    if (user) {
-      const { id, ...rest } = user
-      setFormData(rest)
-    }
-  }, [user])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
