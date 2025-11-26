@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { X, Edit2, Trash2 } from 'lucide-react'
+import { X, Trash2 } from 'lucide-react'
 import { Product } from '@/type/type'
 
 export function ProductModal(

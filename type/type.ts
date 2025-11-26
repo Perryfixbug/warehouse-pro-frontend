@@ -9,3 +9,14 @@ export interface Product{
   created_at: Date,
   updated_at: Date
 }
+
+export interface User {
+  id: number
+  fullname: string
+  email: string
+  phone: string
+  address: string
+  role: 'admin' | 'manager' | 'staff'
+  birth_date: string
+  created_at: string
+}
