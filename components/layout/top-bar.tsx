@@ -3,8 +3,10 @@
 import { Bell, Search, User, Settings } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function TopBar() {
+  const { isAuth, info } = useAuth()
   return (
     <div className="fixed w-[calc(100%-16rem)] bg-card border-b border-border px-6 py-4 flex items-center justify-between gap-4 z-50">
       <div className="flex-1 max-w-md">
@@ -25,8 +27,9 @@ export default function TopBar() {
 
         <div className="h-8 w-px bg-border" />
 
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className='w-fit py-1 px-2'>
           <User size={20} />
+          { info && info?.fullname}
         </Button>
 
         <Button variant="ghost" size="icon">
