@@ -29,7 +29,7 @@ export default function TopBar() {
 
         <Button variant="ghost" size="icon" className='w-fit py-1 px-2'>
           <User size={20} />
-          { info && info?.fullname}
+          { info?.fullname}
         </Button>
 
         <Button variant="ghost" size="icon">
