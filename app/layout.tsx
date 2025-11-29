@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
-import './globals.css'
-import Sidebar from '@/components/layout/sidebar';
-import TopBar from '@/components/layout/top-bar';
+import '@/app/globals.css'
+import AuthProvider from '@/hooks/useAuth'
 
 export const metadata: Metadata = {
   title: 'Warehouse Management System',
@@ -34,15 +33,9 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={`font-sans antialiased h-screen`}>
-        <div className="flex">
-          <Sidebar />
-          <div className='ml-64 w-[calc(100%-16rem)] h-full'>
-            <TopBar />
-            <div className='mt-18'>
-              {children}
-            </div>
-          </div>
-        </div>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )
