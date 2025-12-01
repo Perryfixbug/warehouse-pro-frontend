@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 
 export default function TopBar() {
-  const { isAuth, info } = useAuth()
+  const { info } = useAuth()
   return (
     <div className="fixed w-[calc(100%-16rem)] bg-card border-b border-border px-6 py-4 flex items-center justify-between gap-4 z-50">
       <div className="flex-1 max-w-md">

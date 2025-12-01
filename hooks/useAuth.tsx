@@ -67,6 +67,7 @@ export default function AuthProvider ({children}: {children: React.ReactNode}){
       setInfo(data);
       setIsAuth(false)
     } catch(e) {
+      console.log(e);
       setInfo(null);
       setIsAuth(false)
     }
