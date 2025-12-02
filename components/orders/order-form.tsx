@@ -50,7 +50,7 @@ export function OrderForm({ onSave, onClose }: OrderFormProps) {
     if (!selectedProduct || quantity < 1) return;
 
     const product = products.find((p) => p.id === selectedProduct);
-    if (!product) return;
+    if(!product) return
 
     const newItem: OrderedItem = {
       product_id: product.id,
@@ -158,7 +158,7 @@ export function OrderForm({ onSave, onClose }: OrderFormProps) {
           <div className="border border-border rounded-lg p-4 space-y-3 bg-muted/30">
             <h3 className="font-semibold text-sm">Thêm sản phẩm</h3>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               <select
                 value={selectedProduct || ""}
                 onChange={(e) =>
@@ -166,12 +166,12 @@ export function OrderForm({ onSave, onClose }: OrderFormProps) {
                     e.target.value ? Number(e.target.value) : null
                   )
                 }
-                className="px-3 py-2 rounded-lg border border-border text-sm"
+                className="px-3 py-2 rounded-lg border border-border text-sm col-span-2"
               >
                 <option value="">Chọn sản phẩm</option>
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name}
+                    {p.name} | sl: {p.quantity}
                   </option>
                 ))}
               </select>
@@ -181,9 +181,13 @@ export function OrderForm({ onSave, onClose }: OrderFormProps) {
                 min="1"
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
+                className="col-span-1"
               />
 
-              <Button onClick={handleAddItem} disabled={!selectedProduct}>
+              <Button 
+                onClick={handleAddItem} disabled={!selectedProduct}
+                className="col-span-1"
+              >
                 <Plus size={16} /> Thêm
               </Button>
             </div>
