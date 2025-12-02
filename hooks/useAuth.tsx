@@ -63,19 +63,17 @@ export default function AuthProvider ({children}: {children: React.ReactNode}){
   const fetchMe = async () => {
     try{
       const res = await fetchClient('/me')
-      console.log("Response from /me", res)
       const data = res.data;
       setInfo(data);
       setIsAuth(false)
     } catch(e) {
+      console.log(e);
       setInfo(null);
       setIsAuth(false)
-      localStorage.removeItem("token");
     }
   };
 
   useEffect(()=>{
-    console.log("Run Effect");
     fetchMe()
   }, [])
 

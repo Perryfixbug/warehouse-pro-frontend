@@ -20,3 +20,35 @@ export interface User {
   birth_date: string
   created_at: string
 }
+
+
+export interface Agency {
+  id: number;
+  name: string;
+}
+
+export interface OrderedProduct {
+  id: number;
+  quantity: number;
+  price_per_unit: number;
+  product_id: number;
+  order_id: number,
+  product: Product,
+  total: number
+}
+
+export interface Order {
+  id: number;
+  type: "ImportOrder" | "ExportOrder";
+  created_at: string;
+  agency: Agency;
+  user: User;
+  ordered_products: OrderedProduct[];
+  total_price: number
+}
+
+export interface OrderFormData {
+  type: "ImportOrder" | "ExportOrder",
+  agency_id: number,
+  ordered_products_attributes: { product_id: number; quantity: number; }[]
+}
