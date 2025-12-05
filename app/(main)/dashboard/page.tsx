@@ -16,7 +16,6 @@ export default function Dashboard() {
   useEffect(()=>{
     async function fetchStats(){
       const statsData = await fetchClient("/dashboard/stats")
-      console.log(statsData);
       setStats(statsData)
     } 
     fetchStats()
