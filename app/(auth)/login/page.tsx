@@ -12,17 +12,24 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const { login } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password });
-    await login(email, password);
-    console.log("Đăng nhập!");
+
+    if (!executeRecaptcha){
+      alert("Không thấy captcha")
+      return
+    }
+
+    const token = await executeRecaptcha('login');
+    await login(email, password, token);
   };
 
   return (

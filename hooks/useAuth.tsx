@@ -8,7 +8,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 export interface AuthContextType {
   isAuth: boolean,
   info: User | null,
-  login: (email: string, password: string)=> Promise<void>
+  login: (email: string, password: string, captchaToken: string)=> Promise<void>
   logout: () => void
 }
 
@@ -25,11 +25,11 @@ export default function AuthProvider ({children}: {children: React.ReactNode}){
   const [isAuth, setIsAuth] = useState<boolean>(false)
   const { replace } = useRouter()
 
-  const login = async (email: string, password: string)=>{
+  const login = async (email: string, password: string, captchaToken: string)=>{
     try{
       // Goị api để trả token và info
       const res = await fetchClient("/users/sign_in", "POST", {
-        body: JSON.stringify({user: {email,password}})
+        body: JSON.stringify({user: {email, password, captchaToken}})
       })
       // Gán token vào localStorage
       console.log(res);
