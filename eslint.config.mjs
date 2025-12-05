@@ -12,15 +12,15 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    "**/order/**",
+    "**/users/**",
     "**/orders/**",
     "**/dashboard/**",
     "**/product-list.tsx"
   ]),
   {
     rules: {
-      "no-console": "off",
-      "@typescript-eslint/no-explicit-any": "off",
+      // "no-console": "off",
+      // "@typescript-eslint/no-explicit-any": "off",
     },
   }
 ]);
