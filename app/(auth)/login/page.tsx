@@ -24,7 +24,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     if (!executeRecaptcha){
-      console.log("Không thấy captcha", executeRecaptcha)
+      alert("Không thấy captcha")
       return
     }
 
