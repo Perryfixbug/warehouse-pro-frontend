@@ -1,3 +1,4 @@
+import RecaptchaProvider from '@/app/context/recaptcha-provider'
 import '@/app/globals.css'
 
 export default function RootLayout({
@@ -7,7 +8,9 @@ export default function RootLayout({
 }>) {
   return (
     <div>
-      {children}
+      <RecaptchaProvider>
+        {children}
+      </RecaptchaProvider>
     </div>
   )
 }
