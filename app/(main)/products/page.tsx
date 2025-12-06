@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { ReactHTMLElement, useEffect, useMemo, useRef, useState } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Edit2, Trash2, Plus, Search, Upload, Filter, Eye } from 'lucide-react'
+import { Edit2, Trash2, Plus, Search, Upload, Filter, Eye, File, FileBox } from 'lucide-react'
 import { ProductForm } from '@/components/products/product-form'
 import { ProductModal } from '@/components/products/product-modal'
 import { Product } from '@/type/type'
@@ -16,15 +16,13 @@ export default function ProductManagement() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'in-stock' | 'low-stock' | 'critical'>('all')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const filteredProducts = useMemo(() => products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesSearch
   }),[products, searchQuery])
-  // const filteredProducts = useMemo(()=>{
-  //   console.log("Re calculate")
-  //   return products
-  // }, [products, filterStatus])
 
   const handleAddProduct = async (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
     const res = await fetchClient("/products", "POST", {
@@ -49,6 +47,37 @@ export default function ProductManagement() {
   const handleDeleteProduct = async (id: number) => {
     await fetchClient(`/products/${id}`, "DELETE")
     setProducts(products.filter(p => p.id !== id))
+  }
+
+  const handleImportOpen = ()=>{
+    fileInputRef?.current?.click()
+  }
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>)=>{
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    } else {
+      setSelectedFile(null);
+    }
+  }
+
+  const handleSendCSV = async ()=>{
+    if(!selectedFile) return
+    const formData = new FormData()
+    formData.append('file', selectedFile)
+    formData.append('type', "Product")
+    try{
+      await fetchClient('/csv', "POST", 
+        {
+          body: formData,
+          headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        }
+      )
+      console.log("Đang thực hiện import..")
+      setSelectedFile(null)
+    }catch(e){
+      console.log(e)
+    }
   }
 
   useEffect(()=>{
@@ -92,25 +121,55 @@ export default function ProductManagement() {
                 <Filter size={16} />
                 Bộ lọc
               </Button>
+              { selectedFile == null ? 
               <Button
                 variant="outline"
                 size="sm"
                 className="gap-2"
+                onClick={handleImportOpen}
               >
                 <Upload size={16} />
                 Nhập CSV
-              </Button>
-              <Button
-                onClick={() => {
-                  setSelectedProduct(null)
-                  setIsFormOpen(true)
-                }}
-                size="sm"
-                className="gap-2"
-              >
-                <Plus size={16} />
-                Thêm Sản Phẩm
-              </Button>
+              </Button>:
+              <div className='outline px-2 py-1 rounded-sm flex gap-1 items-center justify-center'>
+                <FileBox size='15'/>
+                {selectedFile.name}
+              </div>
+              }
+              <Input 
+                type='file'
+                className='hidden'
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
+              {selectedFile == null ?
+                <Button
+                  onClick={() => {
+                    setSelectedProduct(null)
+                    setIsFormOpen(true)
+                  }}
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Plus size={16} />
+                  Thêm Sản Phẩm
+                </Button>:
+                <div className='flex gap-2'>
+                  <Button
+                    size='sm'
+                    onClick={handleSendCSV}
+                  >
+                    Xác nhận
+                  </Button>
+                  <Button
+                    variant='destructive'
+                    size='sm'
+                    onClick={()=>setSelectedFile(null)}
+                  >
+                    Hủy
+                  </Button>
+                </div>
+              }
             </div>
           </div>
         </CardHeader>
