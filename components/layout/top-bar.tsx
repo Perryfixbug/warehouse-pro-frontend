@@ -1,9 +1,10 @@
 'use client'
 
-import { Bell, Search, User, Settings } from 'lucide-react'
+import { Search, User, Settings } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
+import NotificationBell from '@/components/notification-bell'
 
 export default function TopBar() {
   const { info } = useAuth()
@@ -20,10 +21,7 @@ export default function TopBar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell size={20} />
-          <span className="absolute top-0 right-0 w-2 h-2 bg-destructive rounded-full" />
-        </Button>
+        <NotificationBell />
 
         <div className="h-8 w-px bg-border" />
 

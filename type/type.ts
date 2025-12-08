@@ -69,3 +69,12 @@ export interface Alert {
   quantity: number;
   message: string;
 }
+
+export interface Notification {
+  id: number;
+  noti_type: string;
+  content: string;
+  created_at: Date;
+  updated_at: Date;
+  read: boolean;
+}
