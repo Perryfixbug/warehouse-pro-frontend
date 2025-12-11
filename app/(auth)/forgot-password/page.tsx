@@ -11,13 +11,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { fetchClient } from "@/lib/fetchClient";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: call API /auth/forgot-password
+    await fetchClient("/auth/password", "POST", {
+      body: JSON.stringify({ email }),
+    }); 
     console.log({ email });
   };
 
