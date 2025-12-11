@@ -28,7 +28,7 @@ export default function AuthProvider ({children}: {children: React.ReactNode}){
   const login = async (email: string, password: string, captchaToken: string)=>{
     try{
       // Goị api để trả token và info
-      const res = await fetchClient("/users/sign_in", "POST", {
+      const res = await fetchClient("/auth/sign_in", "POST", {
         body: JSON.stringify({user: {email, password, captchaToken}})
       })
       // Gán token vào localStorage
@@ -49,7 +49,7 @@ export default function AuthProvider ({children}: {children: React.ReactNode}){
 
   const logout = ()=>{
     try{
-      fetchClient("/users/sign_out", "DELETE")
+      fetchClient("/auth/sign_out", "DELETE")
     }catch(e){
       console.log(e)
     }finally{
