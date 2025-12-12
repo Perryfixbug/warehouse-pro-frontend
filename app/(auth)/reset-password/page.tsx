@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -35,6 +35,21 @@ export default function ResetPasswordPage() {
 
     router.push("/login");
   };
+
+  useEffect(() => {
+    async function checkToken() {
+      const res = await fetch(`/auth/password/new?reset_password_token=${token}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) {
+        router.push("/login");
+      }
+    }
+    checkToken()
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
