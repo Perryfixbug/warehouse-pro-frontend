@@ -3,18 +3,18 @@ export async function fetchClient(endpoint: string, method = "GET", options: Req
   const token = localStorage?.getItem("token")
   try {
     const res = await fetch(url, {
-      ...options,
       method: method,
       headers: { 
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
       cache: "no-store",
+      ...options,
     });
     if (!res.ok) {
       throw new Error(`Client Fetch Error: ${res.status}`);
     }
-    return await res.json();
+    return await res?.json();
   } catch (error) {
     console.error("fetchClient Error:", error);
     throw error;
