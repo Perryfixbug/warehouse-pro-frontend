@@ -14,6 +14,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { fetchClient } from "@/lib/fetchClient";
 import { useRouter } from "next/navigation";
+import { useLoading } from "@/hooks/useLoading";
+import { ClipLoader } from "react-spinners";
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
@@ -22,15 +24,18 @@ export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const router = useRouter();
+  const {loading, withLoading} = useLoading()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetchClient("/auth/password", "PUT", {
-      body: JSON.stringify({ 
-        reset_password_token: token,
-        password: password,
-        password_confirmation: passwordConfirmation,
-      }),
+    withLoading(async () => {
+      await fetchClient("/auth/password", "PUT", {
+        body: JSON.stringify({ 
+          reset_password_token: token,
+          password: password,
+          password_confirmation: passwordConfirmation,
+        }),
+      })
     });
 
     router.push("/login");
@@ -82,7 +87,8 @@ export default function ResetPasswordPage() {
                 />
               </div>
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <ClipLoader size={15} color="#ffffff" className="mr-2" />}
                 Xác nhận
               </Button>
             </form>
