@@ -9,6 +9,8 @@ import { ProductForm } from '@/components/products/product-form'
 import { ProductModal } from '@/components/products/product-modal'
 import { Product } from '@/type/type'
 import { fetchClient } from '@/lib/fetchClient'
+import { useLoading } from '@/hooks/useLoading'
+import { ClipLoader } from 'react-spinners'
 
 export default function ProductManagement() {
   const [products, setProducts] = useState<Product[]>([])
@@ -18,6 +20,7 @@ export default function ProductManagement() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'in-stock' | 'low-stock' | 'critical'>('all')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const {loading, withLoading} = useLoading()
 
   const filteredProducts = useMemo(() => products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -82,9 +85,11 @@ export default function ProductManagement() {
 
   useEffect(()=>{
     const fetchProducts = async () =>{
-      const res = await fetchClient("/products");
-      const data = res.data
-      setProducts(data)
+      withLoading(async () => {
+        const res = await fetchClient("/products");
+        const data = res.data
+        setProducts(data)
+      })
     }
     fetchProducts()
   }, [])
@@ -235,8 +240,13 @@ export default function ProductManagement() {
                 ))}
               </tbody>
             </table>
-
-            {filteredProducts.length === 0 && (
+            
+            {loading && (
+              <div className='flex justify-center items-center py-8'>
+                <ClipLoader size={30} color="#000000" />
+              </div>
+            )}
+            {!loading && filteredProducts.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 Không tìm thấy sản phẩm nào
               </div>
