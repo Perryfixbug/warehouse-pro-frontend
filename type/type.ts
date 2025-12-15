@@ -78,3 +78,10 @@ export interface Notification {
   updated_at: Date;
   read: boolean;
 }
+
+export interface ProductSearchQuery {
+  name_cont?: string;
+  unit_eq?: string;
+  price_per_unit_gteq?: number;
+  price_per_unit_lteq?: number;
+}
