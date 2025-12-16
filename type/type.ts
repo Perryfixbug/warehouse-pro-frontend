@@ -24,6 +24,10 @@ export interface User {
 export interface Agency {
   id: number;
   name: string;
+  email: string;
+  phone: string;
+  location: string;
+  created_at: string;
 }
 
 export interface OrderedProduct {
@@ -94,4 +98,8 @@ export interface UserSearchQuery {
 export interface OrderSearchQuery {
   id_or_agency_name_cont?: string;
   type_eq?: string;
+}
+
+export interface AgencySearchQuery {
+  name_or_phone_or_email_cont?: string;
 }
