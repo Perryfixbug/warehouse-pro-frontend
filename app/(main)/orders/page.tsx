@@ -17,7 +17,9 @@ import { OrderForm } from "@/components/orders/order-form";
 import { OrderDetails } from "@/components/orders/order-details";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchClient } from "@/lib/api/fetchClient";
-import { Order, OrderFormData } from "@/type/type"
+import { Order, OrderFormData, OrderSearchQuery } from "@/type/type"
+import { useDebounce } from "@/hooks/useDebounce";
+import { getOrders } from "@/lib/api/getOrders";
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -26,17 +28,8 @@ export default function OrderManagement() {
   );
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredOrders = useMemo(()=> orders.filter((order) => {
-    const matchesTab = activeTab === "all" || order.type === activeTab;
-    const matchesSearch =
-      `${order.type === "ImportOrder" ? "IM" : "EX"}-${order.id}`
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      order.agency.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesTab && matchesSearch;
-  }),[searchQuery, orders]);
+  const [searchQuery, setSearchQuery] = useState<OrderSearchQuery>({});
+  const searchQueryDebounce = useDebounce(searchQuery, 500);
 
   const handleAddOrder = async (data: OrderFormData) =>{
     try {
@@ -73,13 +66,15 @@ export default function OrderManagement() {
   [orders]);
 
   useEffect(() => {
+    if(!searchQueryDebounce) return;
+
     async function fetchOrder() {
-      const res = await fetchClient("/orders")
+      const res = await getOrders(searchQueryDebounce);
       const data = res.data
       setOrders(data)
     }
     fetchOrder()
-  }, []);
+  }, [searchQueryDebounce]);
 
   return (
     <div className="p-6 space-y-6">
@@ -140,8 +135,13 @@ export default function OrderManagement() {
             <Input
               placeholder="Tìm kiếm mã phiếu, nhà cung cấp..."
               className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchQuery.id_or_agency_name_cont || ""}
+              onChange={(e) => {
+                setSearchQuery((prev) => ({
+                  ...prev,
+                  id_or_agency_name_cont: e.target.value,
+                }));
+              }}
             />
           </div>
 
@@ -204,13 +204,13 @@ export default function OrderManagement() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredOrders.map((order) => (
+                    {orders.filter(order=> (activeTab === "all" ? order : order.type === activeTab)).map((order) => (
                       <tr
                         key={order.id}
                         className="border-b border-border hover:bg-muted/50 transition-colors"
                       >
                         <td className="py-3 px-4 font-medium text-primary">
-                          {order.type === "ImportOrder" ? "IM" : "EX"}-{order.id}
+                          {order.id}
                         </td>
                         <td className="py-3 px-4">
                           <span
@@ -263,7 +263,7 @@ export default function OrderManagement() {
                   </tbody>
                 </table>
 
-                {filteredOrders.length === 0 && (
+                {orders.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     Không tìm thấy phiếu nào
                   </div>

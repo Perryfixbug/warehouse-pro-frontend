@@ -90,3 +90,8 @@ export interface UserSearchQuery {
   fullname_or_email_cont?: string;
   role_eq?: string;
 }
+
+export interface OrderSearchQuery {
+  id_or_agency_name_cont?: string;
+  type_eq?: string;
+}
