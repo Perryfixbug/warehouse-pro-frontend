@@ -85,3 +85,8 @@ export interface ProductSearchQuery {
   price_per_unit_gteq?: number;
   price_per_unit_lteq?: number;
 }
+
+export interface UserSearchQuery {
+  fullname_or_email_cont?: string;
+  role_eq?: string;
+}
