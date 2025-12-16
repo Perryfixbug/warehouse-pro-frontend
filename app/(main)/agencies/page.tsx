@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, Edit2, Trash2, Search, Eye, Building2 } from 'lucide-react'
+import { Plus, Edit2, Trash2, Search, Eye } from 'lucide-react'
 import { fetchClient } from '@/lib/api/fetchClient'
 import { Agency, AgencySearchQuery } from '@/type/type'
 import { useDebounce } from '@/hooks/useDebounce'
