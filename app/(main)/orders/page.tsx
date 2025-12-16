@@ -16,7 +16,7 @@ import {
 import { OrderForm } from "@/components/orders/order-form";
 import { OrderDetails } from "@/components/orders/order-details";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fetchClient } from "@/lib/fetchClient";
+import { fetchClient } from "@/lib/api/fetchClient";
 import { Order, OrderFormData } from "@/type/type"
 
 export default function OrderManagement() {

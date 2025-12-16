@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { fetchClient } from "@/lib/fetchClient";
+import { fetchClient } from "@/lib/api/fetchClient";
 import { useRouter } from "next/navigation";
 
 export default function ResetPasswordPage() {
