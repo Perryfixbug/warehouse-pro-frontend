@@ -23,6 +23,7 @@ import { getOrders } from "@/lib/api/getOrders";
 import { dateToLocaleString } from "@/lib/utils/dateToLocaleString";
 import { ClipLoader } from "react-spinners";
 import { useLoading } from "@/hooks/useLoading";
+import Pagination from "@/components/layout/paginattion";
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -34,6 +35,8 @@ export default function OrderManagement() {
   const [searchQuery, setSearchQuery] = useState<OrderSearchQuery>({});
   const searchQueryDebounce = useDebounce(searchQuery, 500);
   const {loading, withLoading} = useLoading();
+  const [page, setPage] = useState(1);
+  const [total_pages, setTotalPages] = useState(1);
 
   const handleAddOrder = async (data: OrderFormData) =>{
     try {
@@ -74,13 +77,19 @@ export default function OrderManagement() {
 
     async function fetchOrder() {
       withLoading(async () => {
-        const res = await getOrders(searchQueryDebounce)
+        const res = await getOrders(searchQueryDebounce, page)
         const data = res.data
+        const meta = res.meta
+        setTotalPages(meta.total_pages)
         setOrders(data)
       })
     }
     fetchOrder()
-  }, [searchQueryDebounce]);
+  }, [searchQueryDebounce, page]);
+
+  useEffect(() => {
+    setPage(1)
+  }, [searchQueryDebounce])
 
   return (
     <div className="p-6 space-y-6">
@@ -215,7 +224,7 @@ export default function OrderManagement() {
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.filter(order=> (activeTab === "all" ? order : order.type === activeTab)).map((order) => (
+                    {!loading && orders.filter(order=> (activeTab === "all" ? order : order.type === activeTab)).map((order) => (
                       <tr
                         key={order.id}
                         className="border-b border-border hover:bg-muted/50 transition-colors"
@@ -272,10 +281,25 @@ export default function OrderManagement() {
                   </tbody>
                 </table>
 
+                {loading && (
+                  <div className='flex justify-center items-center py-8'>
+                    <ClipLoader size={30} color="#000000" />
+                  </div>
+                )}
+
                 {!loading && orders.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     Không tìm thấy phiếu nào
                   </div>
+                )}
+
+                {!loading && orders.length > 0 && (
+                  <Pagination meta={{
+                    current_page: page,
+                    total_pages: total_pages
+                  }}
+                  setPage={setPage}
+                  />
                 )}
               </div>
             )}

@@ -88,18 +88,22 @@ export interface ProductSearchQuery {
   unit_eq?: string;
   price_per_unit_gteq?: number;
   price_per_unit_lteq?: number;
+  page?: number;
 }
 
 export interface UserSearchQuery {
   fullname_or_email_cont?: string;
   role_eq?: string;
+  page?: number;
 }
 
 export interface OrderSearchQuery {
   id_or_agency_name_cont?: string;
   type_eq?: string;
+  page?: number;
 }
 
 export interface AgencySearchQuery {
   name_or_phone_or_email_cont?: string;
+  page?: number;
 }

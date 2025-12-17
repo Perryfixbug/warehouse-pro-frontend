@@ -14,6 +14,9 @@ import { USER_ROLES } from '@/type/constant'
 import { getUsers } from '@/lib/api/getUser'
 import { useDebounce } from '@/hooks/useDebounce'
 import { dateToLocaleString } from '@/lib/utils/dateToLocaleString'
+import { useLoading } from '@/hooks/useLoading'
+import { ClipLoader } from 'react-spinners'
+import Pagination from '@/components/layout/paginattion'
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([])
@@ -21,6 +24,9 @@ export default function UserManagement() {
   const [formOpen, setFormOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState<UserSearchQuery>({})
   const searchQueryDebounce = useDebounce(searchQuery, 500)
+  const { loading, withLoading } = useLoading()
+  const [total_pages, setTotalPages] = useState(1)
+  const [page, setPage] = useState(1)
 
   const handleAddUser = async (data: Omit<User, 'id'>) => {
     const res = await fetchClient("/users", "POST", {
@@ -54,11 +60,19 @@ export default function UserManagement() {
     if(!searchQueryDebounce) return
 
     const fetchUser = async ()=>{
-      const res = await getUsers(searchQueryDebounce)
-      const data = res.data
-      setUsers(data)
+        withLoading(async () => {
+          const res = await getUsers(searchQueryDebounce, page)
+          const data = res.data
+          const meta = res.meta
+          setTotalPages(meta.total_pages)
+          setUsers(data)
+      })
     }
     fetchUser()
+  }, [searchQueryDebounce, page])
+
+  useEffect(() => {
+    setPage(1)
   }, [searchQueryDebounce])
 
   return (
@@ -110,10 +124,12 @@ export default function UserManagement() {
                   className="pl-10"
                   placeholder="Tìm kiếm tên, email..."
                   value={searchQuery.fullname_or_email_cont || ""}
-                  onChange={(e) => setSearchQuery((prev)=>({
-                    ...prev, 
-                    fullname_or_email_cont: e.target.value
-                  }))}
+                  onChange={(e) => {
+                    setSearchQuery((prev)=>({
+                      ...prev, 
+                      fullname_or_email_cont: e.target.value
+                    }))}
+                  }
                 />
               </div>
 
@@ -164,7 +180,7 @@ export default function UserManagement() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => { 
+                {!loading && users.map((user) => { 
                 const role = USER_ROLES.find((r)=>r.value === user.role)
                 return (
                   <tr key={user.id} className="border-b hover:bg-muted/50">
@@ -216,13 +232,26 @@ export default function UserManagement() {
               )}
               </tbody>
             </table>
-
-            {users.length === 0 && (
+            {loading && (
+              <div className='flex justify-center items-center py-8'>
+                <ClipLoader size={30} color="#000000" />
+              </div>
+            )}
+            {!loading && users.length === 0 && (
               <div className="text-center py-6 text-muted-foreground">
                 Không tìm thấy người dùng nào
               </div>
             )}
           </div>
+
+          {!loading && users.length > 0 && (
+            <Pagination meta={{
+              current_page: page,
+              total_pages: total_pages
+            }}
+            setPage={setPage}
+            />
+          )}
         </CardContent>
 
         {formOpen && 

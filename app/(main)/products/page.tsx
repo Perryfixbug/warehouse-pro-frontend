@@ -15,16 +15,19 @@ import { PRODUCT_PRICE_RANGES, PRODUCT_UNITS } from '@/type/constant'
 import { useDebounce } from '@/hooks/useDebounce'
 import { useLoading } from '@/hooks/useLoading'
 import { ClipLoader } from 'react-spinners'
+import Pagination from '@/components/layout/paginattion'  
 
 export default function ProductManagement() {
   const [products, setProducts] = useState<Product[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [searchQuery, setSearchQuery] = useState<ProductSearchQuery>({})
-  const searchQueryDebounce = useDebounce(searchQuery, 500);
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const {loading, withLoading} = useLoading()
+  const [total_pages, setTotalPages] = useState(1)
+  const [page, setPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState<ProductSearchQuery>({})
+  const searchQueryDebounce = useDebounce(searchQuery, 500);
 
   const handleAddProduct = async (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
     const res = await fetchClient("/products", "POST", {
@@ -111,12 +114,18 @@ export default function ProductManagement() {
 
     const fetchProducts = async () =>{
       withLoading(async () => {
-        const res = await getProduct(searchQueryDebounce);
+        const res = await getProduct(searchQueryDebounce, page);
         const data = res.data
+        const meta = res.meta
+        setTotalPages(meta.total_pages)
         setProducts(data)
       })
     }
     fetchProducts()
+  }, [searchQueryDebounce, page])
+
+  useEffect(() => {
+    setPage(1)
   }, [searchQueryDebounce])
 
   return (
@@ -137,12 +146,16 @@ export default function ProductManagement() {
                     placeholder="Tìm kiếm sản phẩm..."
                     className="pl-10"
                     value={searchQuery.name_cont || ''}
-                    onChange={(e) => setSearchQuery((prev)=>({...prev, name_cont: e.target.value}))}
+                    onChange={(e) => {
+                      setSearchQuery((prev)=>({...prev, name_cont: e.target.value}))}
+                    }
                   />
                 </div>
 
                 <Select
-                  onValueChange={(value)=>setSearchQuery((prev)=>({...prev, unit_eq: value}))}
+                  onValueChange={(value)=>{
+                    setSearchQuery((prev)=>({...prev, unit_eq: value}))}
+                  }
                 >
                   <SelectTrigger className="ml-2 w-[180px]">
                     <SelectValue defaultValue="all" placeholder="Đơn vị" />
@@ -229,7 +242,7 @@ export default function ProductManagement() {
             </div>
           </div>
         </CardHeader>
-
+        
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -245,7 +258,7 @@ export default function ProductManagement() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
+                {!loading && products.map((product) => (
                   <tr key={product.id} className="border-b border-border hover:bg-muted/50 transition-colors">
                     <td className="py-3 px-4">{product.product_code}</td>
                     <td className="py-3 px-4 font-medium">{product.name}</td>
@@ -291,7 +304,7 @@ export default function ProductManagement() {
                 ))}
               </tbody>
             </table>
-            
+
             {loading && (
               <div className='flex justify-center items-center py-8'>
                 <ClipLoader size={30} color="#000000" />
@@ -303,6 +316,16 @@ export default function ProductManagement() {
               </div>
             )}
           </div>
+
+          {!loading && products.length > 0 && (
+            <Pagination 
+              meta={{
+                current_page: page,
+                total_pages: total_pages
+              }} 
+              setPage={setPage}
+            />
+          )}
         </CardContent>
 
         <CardContent className="border-t border-border pt-4">
