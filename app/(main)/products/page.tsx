@@ -13,7 +13,6 @@ import { getProduct } from '@/lib/api/getProduct'
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectValue, SelectItem } from '@/components/ui/select'
 import { PRODUCT_PRICE_RANGES, PRODUCT_UNITS } from '@/type/constant'
 import { useDebounce } from '@/hooks/useDebounce'
-import { Product } from '@/type/type'
 import { useLoading } from '@/hooks/useLoading'
 import { ClipLoader } from 'react-spinners'
 
