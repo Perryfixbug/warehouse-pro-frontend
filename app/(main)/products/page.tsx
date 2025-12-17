@@ -13,6 +13,9 @@ import { getProduct } from '@/lib/api/getProduct'
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectValue, SelectItem } from '@/components/ui/select'
 import { PRODUCT_PRICE_RANGES, PRODUCT_UNITS } from '@/type/constant'
 import { useDebounce } from '@/hooks/useDebounce'
+import { Product } from '@/type/type'
+import { useLoading } from '@/hooks/useLoading'
+import { ClipLoader } from 'react-spinners'
 
 export default function ProductManagement() {
   const [products, setProducts] = useState<Product[]>([])
@@ -22,6 +25,7 @@ export default function ProductManagement() {
   const searchQueryDebounce = useDebounce(searchQuery, 500);
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const {loading, withLoading} = useLoading()
 
   const handleAddProduct = async (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
     const res = await fetchClient("/products", "POST", {
@@ -107,9 +111,11 @@ export default function ProductManagement() {
     if(!searchQueryDebounce) return
 
     const fetchProducts = async () =>{
-      const res = await getProduct(searchQueryDebounce);
-      const data = res.data
-      setProducts(data)
+      withLoading(async () => {
+        const res = await getProduct(searchQueryDebounce);
+        const data = res.data
+        setProducts(data)
+      })
     }
     fetchProducts()
   }, [searchQueryDebounce])
@@ -286,8 +292,13 @@ export default function ProductManagement() {
                 ))}
               </tbody>
             </table>
-
-            {products.length === 0 && (
+            
+            {loading && (
+              <div className='flex justify-center items-center py-8'>
+                <ClipLoader size={30} color="#000000" />
+              </div>
+            )}
+            {!loading && products.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 Không tìm thấy sản phẩm nào
               </div>

@@ -21,6 +21,9 @@ import { Order, OrderFormData, OrderSearchQuery } from "@/type/type"
 import { useDebounce } from "@/hooks/useDebounce";
 import { getOrders } from "@/lib/api/getOrders";
 import { dateToLocaleString } from "@/lib/utils/dateToLocaleString";
+import { Order, OrderFormData } from "@/type/type"
+import { ClipLoader } from "react-spinners";
+import { useLoading } from "@/hooks/useLoading";
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -31,6 +34,7 @@ export default function OrderManagement() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [searchQuery, setSearchQuery] = useState<OrderSearchQuery>({});
   const searchQueryDebounce = useDebounce(searchQuery, 500);
+  const {loading, withLoading} = useLoading();
 
   const handleAddOrder = async (data: OrderFormData) =>{
     try {
@@ -70,9 +74,11 @@ export default function OrderManagement() {
     if(!searchQueryDebounce) return;
 
     async function fetchOrder() {
-      const res = await getOrders(searchQueryDebounce);
-      const data = res.data
-      setOrders(data)
+      withLoading(async () => {
+        const res = await getOrders(searchQueryDebounce)
+        const data = res.data
+        setOrders(data)
+      })
     }
     fetchOrder()
   }, [searchQueryDebounce]);
@@ -177,6 +183,11 @@ export default function OrderManagement() {
             </TabsList>
 
             <TabsContent value={activeTab} className="mt-4">
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <ClipLoader size={30} color="#000000" />
+              </div>
+            ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -262,12 +273,13 @@ export default function OrderManagement() {
                   </tbody>
                 </table>
 
-                {orders.length === 0 && (
+                {!loading && orders.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     Không tìm thấy phiếu nào
                   </div>
                 )}
               </div>
+            )}
             </TabsContent>
           </Tabs>
         </CardContent>

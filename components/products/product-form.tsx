@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { X } from 'lucide-react'
 import { Product } from '@/type/type'
+import { useLoading } from '@/hooks/useLoading'
+import { ClipLoader } from 'react-spinners'
 
 interface ProductFormProps {
   product: Product | null
@@ -21,6 +23,7 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
     detail: '',
     product_code: '',
   })
+  const {loading, withLoading} = useLoading()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -30,9 +33,11 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(formData)
+    await withLoading(async () => {
+      onSave(formData)
+    })
     onClose()
   }
 
@@ -139,7 +144,8 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
             >
               Hủy
             </Button>
-            <Button type="submit" className="flex-1">
+            <Button type="submit" className="flex-1" disabled={loading}>
+              {loading && <ClipLoader size={15} color="#ffffff" className="mr-2" />}
               {product ? 'Cập Nhật' : 'Thêm'}
             </Button>
           </div>

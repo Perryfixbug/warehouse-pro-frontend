@@ -11,17 +11,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { fetchClient } from "@/lib/api/fetchClient";
+import { fetchClient } from "@/lib/fetchClient";
+import { useLoading } from "@/hooks/useLoading";
+import { ClipLoader } from "react-spinners";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
+  const {loading, withLoading} = useLoading()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetchClient("/auth/password", "POST", {
-      body: JSON.stringify({ email }),
-    }); 
-    console.log({ email });
+    withLoading(async () => {
+      await fetchClient("/auth/password", "POST", {
+        body: JSON.stringify({ email }),
+      }); 
+    })
   };
 
   return (
@@ -49,7 +53,8 @@ export default function ForgotPasswordPage() {
                 className="mt-1"
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <ClipLoader size={15} color="#ffffff" className="mr-2" />}
               Gửi Link
             </Button>
           </form>
