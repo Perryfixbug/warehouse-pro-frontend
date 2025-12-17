@@ -21,7 +21,6 @@ import { Order, OrderFormData, OrderSearchQuery } from "@/type/type"
 import { useDebounce } from "@/hooks/useDebounce";
 import { getOrders } from "@/lib/api/getOrders";
 import { dateToLocaleString } from "@/lib/utils/dateToLocaleString";
-import { Order, OrderFormData } from "@/type/type"
 import { ClipLoader } from "react-spinners";
 import { useLoading } from "@/hooks/useLoading";
 
