@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 import { Agency } from '@/type/type'
+import { dateToLocaleString } from '@/lib/utils/dateToLocaleString'
 
 interface AgencyDetailsModalProps {
   agency: Agency
@@ -56,7 +57,7 @@ export function AgencyDetailsModal({
             <div className="col-span-2">
               <p className="text-sm text-muted-foreground">Ngày Tạo</p>
               <p className="text-base font-semibold">
-                {new Date(agency.created_at).toLocaleDateString('vi-VN')}
+                {dateToLocaleString(agency.created_at)}
               </p>
             </div>
           </div>

@@ -20,6 +20,7 @@ import { fetchClient } from "@/lib/api/fetchClient";
 import { Order, OrderFormData, OrderSearchQuery } from "@/type/type"
 import { useDebounce } from "@/hooks/useDebounce";
 import { getOrders } from "@/lib/api/getOrders";
+import { dateToLocaleString } from "@/lib/utils/dateToLocaleString";
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -224,9 +225,7 @@ export default function OrderManagement() {
                           </span>
                         </td>
                         <td className="py-3 px-4 text-muted-foreground">
-                          {new Date(order.created_at).toLocaleDateString(
-                            "vi-VN"
-                          )}
+                          {dateToLocaleString(order.created_at)}
                         </td>
                         <td className="py-3 px-4">{order.agency.name}</td>
                         <td className="py-3 px-4 text-right">

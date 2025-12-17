@@ -6,8 +6,8 @@ export interface Product {
   quantity: number;
   detail: string;
   product_code: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface User {
@@ -78,8 +78,8 @@ export interface Notification {
   id: number;
   noti_type: string;
   content: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   read: boolean;
 }
 

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { X, Download } from "lucide-react";
 import { Order } from "@/type/type";
+import { dateToLocaleString } from "@/lib/utils/dateToLocaleString";
 
 export function OrderDetails({
   order,
@@ -37,7 +38,7 @@ export function OrderDetails({
             <CardTitle className="text-2xl">{order.id}</CardTitle>
             <CardDescription>
               {getTypeLabel(order.type)} -
-              {new Date(order.created_at).toLocaleDateString("vi-VN")}
+              {dateToLocaleString(order.created_at)}
             </CardDescription>
           </div>
           <button
@@ -58,7 +59,7 @@ export function OrderDetails({
             <div>
               <p className="text-sm text-muted-foreground">Ngày</p>
               <p className="font-semibold text-lg">
-                {new Date(order.created_at).toLocaleDateString("vi-VN")}
+                {dateToLocaleString(order.created_at)}
               </p>
             </div>
           </div>

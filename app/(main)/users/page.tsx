@@ -13,6 +13,7 @@ import { Select, SelectTrigger, SelectValue, SelectItem, SelectGroup, SelectCont
 import { USER_ROLES } from '@/type/constant'
 import { getUsers } from '@/lib/api/getUser'
 import { useDebounce } from '@/hooks/useDebounce'
+import { dateToLocaleString } from '@/lib/utils/dateToLocaleString'
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([])
@@ -176,7 +177,7 @@ export default function UserManagement() {
                         {role?.label}
                       </span>
                     </td>
-                    <td className="py-3 px-4">{new Date(user.created_at).toLocaleDateString('vi-VN')}</td>
+                    <td className="py-3 px-4">{dateToLocaleString(user.created_at)}</td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex justify-center gap-2">
                         <Button

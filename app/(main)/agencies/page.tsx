@@ -11,6 +11,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { AgencyForm } from '@/components/agencies/agency-form'
 import { AgencyDetailsModal } from '@/components/agencies/agency-details-modal'
 import { getAgencies } from '@/lib/api/getAgencies'
+import { dateToLocaleString } from '@/lib/utils/dateToLocaleString'
 
 export default function AgencyManagement() {
   const [agencies, setAgencies] = useState<Agency[]>([])
@@ -116,7 +117,7 @@ export default function AgencyManagement() {
                     <td className="py-3 px-4">{agency.phone}</td>
                     <td className="py-3 px-4">{agency.location}</td>
                     <td className="py-3 px-4">
-                      {new Date(agency.created_at).toLocaleDateString('vi-VN')}
+                      {dateToLocaleString(agency.created_at)}
                     </td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex justify-center gap-2">
