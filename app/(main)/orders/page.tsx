@@ -18,6 +18,8 @@ import { OrderDetails } from "@/components/orders/order-details";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchClient } from "@/lib/fetchClient";
 import { Order, OrderFormData } from "@/type/type"
+import { ClipLoader } from "react-spinners";
+import { useLoading } from "@/hooks/useLoading";
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -27,6 +29,7 @@ export default function OrderManagement() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const {loading, withLoading} = useLoading();
 
   const filteredOrders = useMemo(()=> orders.filter((order) => {
     const matchesTab = activeTab === "all" || order.type === activeTab;
@@ -74,9 +77,11 @@ export default function OrderManagement() {
 
   useEffect(() => {
     async function fetchOrder() {
-      const res = await fetchClient("/orders")
-      const data = res.data
-      setOrders(data)
+      withLoading(async () => {
+        const res = await fetchClient("/orders")
+        const data = res.data
+        setOrders(data)
+      })
     }
     fetchOrder()
   }, []);
@@ -176,6 +181,11 @@ export default function OrderManagement() {
             </TabsList>
 
             <TabsContent value={activeTab} className="mt-4">
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <ClipLoader size={30} color="#000000" />
+              </div>
+            ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -263,12 +273,13 @@ export default function OrderManagement() {
                   </tbody>
                 </table>
 
-                {filteredOrders.length === 0 && (
+                {!loading && filteredOrders.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     Không tìm thấy phiếu nào
                   </div>
                 )}
               </div>
+            )}
             </TabsContent>
           </Tabs>
         </CardContent>

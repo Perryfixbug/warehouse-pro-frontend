@@ -13,12 +13,15 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { useLoading } from "@/hooks/useLoading";
+import { ClipLoader } from "react-spinners";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { executeRecaptcha } = useGoogleReCaptcha();
   const { login } = useAuth()
+  const { loading, withLoading } = useLoading()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,9 +30,10 @@ export default function LoginPage() {
       alert("Không thấy captcha")
       return
     }
-
-    const token = await executeRecaptcha('login');
-    await login(email, password, token);
+    await withLoading(async () => {
+      const token = await executeRecaptcha('login');
+      await login(email, password, token);
+    })
   };
 
   return (
@@ -67,7 +71,8 @@ export default function LoginPage() {
                 className="mt-1"
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={loading}>
+              { loading && <ClipLoader size={15} color="#ffffff" className="mr-2" /> }
               Đăng Nhập
             </Button>
           </form>

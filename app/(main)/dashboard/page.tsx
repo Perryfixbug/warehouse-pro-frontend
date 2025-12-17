@@ -9,19 +9,29 @@ import { QuickActions } from '@/components/dashboard/quick-actions'
 import { fetchClient } from '@/lib/fetchClient'
 import { DashboardStat } from '@/type/type'
 import { Tabs, TabsTrigger, TabsList, TabsContent } from '@/components/ui/tabs'
+import { useLoading } from '@/hooks/useLoading'
+import { ClipLoader } from 'react-spinners'
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStat>();
+  const {loading, withLoading} = useLoading()
 
   useEffect(()=>{
     async function fetchStats(){
-      const statsData = await fetchClient("/dashboard/stats")
-      setStats(statsData)
+      withLoading(async () => {
+        const statsData = await fetchClient("/dashboard/stats")
+        setStats(statsData)
+      })
     } 
     fetchStats()
   }, [])
 
-  return (
+  return loading ? 
+    <div className='flex w-full h-[80vh] justify-center items-center'>
+      <ClipLoader size={50} color="#000000" className="mx-auto my-20" />
+    </div>
+    :
+    (
     <div className="p-6 space-y-6">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
