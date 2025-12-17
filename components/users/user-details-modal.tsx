@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 import { User } from '@/type/type'
+import { dateToLocaleString } from '@/lib/utils/dateToLocaleString'
 
 interface UserDetailsModalProps {
   user: User
@@ -47,11 +48,11 @@ export function UserDetailsModal({ user, onClose }: UserDetailsModalProps) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Ngày Sinh</p>
-              <p className="text-base font-semibold">{new Date(user.birth_date).toLocaleDateString('vi-VN')}</p>
+              <p className="text-base font-semibold">{dateToLocaleString(user.birth_date)}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Ngày Tham Gia</p>
-              <p className="text-base font-semibold">{new Date(user.created_at).toLocaleDateString('vi-VN')}</p>
+              <p className="text-base font-semibold">{dateToLocaleString(user.created_at)}</p>
             </div>
           </div>
 

@@ -14,13 +14,13 @@ interface UserFormProps {
 
 export function UserForm({ user, onSave, onClose }: UserFormProps) {
   const [formData, setFormData] = useState<Omit<User, 'id' >>({
-    fullname: '',
-    email: '',
-    phone: '',
-    address: '',
-    role: 'staff',
-    birth_date: new Date().toISOString().split('T')[0],
-    created_at: ''
+    fullname: user?.fullname || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    address: user?.address || "",
+    role: user?.role || 'staff',
+    birth_date: user?.birth_date || new Date().toISOString().split('T')[0],
+    created_at: user?.created_at || ""
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

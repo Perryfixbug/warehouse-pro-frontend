@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Plus, Trash2 } from "lucide-react";
 import { Agency, Product, OrderFormData } from "@/type/type";
-import { fetchClient } from "@/lib/fetchClient";
+import { fetchClient } from "@/lib/api/fetchClient";
 
 interface OrderedItem {
   product_id: number;

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { fetchClient } from '@/lib/fetchClient'
+import { fetchClient } from '@/lib/api/fetchClient'
 import { Bell } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Notification } from '@/type/type'

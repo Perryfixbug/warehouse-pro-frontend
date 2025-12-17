@@ -1,6 +1,6 @@
 "use client"
 
-import { fetchClient } from "@/lib/fetchClient";
+import { fetchClient } from "@/lib/api/fetchClient";
 import { User } from "@/type/type";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";

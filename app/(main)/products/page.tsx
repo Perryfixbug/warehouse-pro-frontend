@@ -1,14 +1,19 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Edit2, Trash2, Plus, Search, Upload, Filter, Eye, File, FileBox } from 'lucide-react'
+import { Edit2, Trash2, Plus, Search, Upload, Eye, FileBox } from 'lucide-react'
 import { ProductForm } from '@/components/products/product-form'
 import { ProductModal } from '@/components/products/product-modal'
+import { Product, ProductSearchQuery } from '@/type/type'
+import { fetchClient } from '@/lib/api/fetchClient'
+import { getProduct } from '@/lib/api/getProduct'
+import { Select, SelectTrigger, SelectContent, SelectGroup, SelectValue, SelectItem } from '@/components/ui/select'
+import { PRODUCT_PRICE_RANGES, PRODUCT_UNITS } from '@/type/constant'
+import { useDebounce } from '@/hooks/useDebounce'
 import { Product } from '@/type/type'
-import { fetchClient } from '@/lib/fetchClient'
 import { useLoading } from '@/hooks/useLoading'
 import { ClipLoader } from 'react-spinners'
 
@@ -16,16 +21,11 @@ export default function ProductManagement() {
   const [products, setProducts] = useState<Product[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [filterStatus, setFilterStatus] = useState<'all' | 'in-stock' | 'low-stock' | 'critical'>('all')
+  const [searchQuery, setSearchQuery] = useState<ProductSearchQuery>({})
+  const searchQueryDebounce = useDebounce(searchQuery, 500);
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const {loading, withLoading} = useLoading()
-
-  const filteredProducts = useMemo(() => products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesSearch
-  }),[products, searchQuery])
 
   const handleAddProduct = async (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
     const res = await fetchClient("/products", "POST", {
@@ -52,6 +52,30 @@ export default function ProductManagement() {
     setProducts(products.filter(p => p.id !== id))
   }
 
+  const handleChangeProductPrice = (value: string)=>{
+    if(value.includes("Dưới")){
+      const numStr = value.split("Dưới ")[1]
+      setSearchQuery((prev)=>({...prev, price_per_unit_lteq: Number(numStr)}))
+    }else if(value.includes("Trên")){
+      const numStr = value.split("Trên ")[1]
+      setSearchQuery((prev)=>({...prev, price_per_unit_gteq: Number(numStr)}))
+    }else if(value === "all"){
+      setSearchQuery((prev)=>{
+        const next = { ...prev };
+        delete next.price_per_unit_gteq;
+        delete next.price_per_unit_lteq;
+        return next;
+      })
+    }else{
+      const [numStr1, numStr2] = value.split("-")
+      setSearchQuery((prev)=>({
+        ...prev, 
+        price_per_unit_gteq: Number(numStr1), 
+        price_per_unit_lteq: Number(numStr2)
+      }))
+    }
+  }
+
   const handleImportOpen = ()=>{
     fileInputRef?.current?.click()
   }
@@ -76,7 +100,7 @@ export default function ProductManagement() {
           headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
         }
       )
-      console.log("Đang thực hiện import..")
+      
       setSelectedFile(null)
     }catch(e){
       console.log(e)
@@ -84,15 +108,17 @@ export default function ProductManagement() {
   }
 
   useEffect(()=>{
+    if(!searchQueryDebounce) return
+
     const fetchProducts = async () =>{
       withLoading(async () => {
-        const res = await fetchClient("/products");
+        const res = await getProduct(searchQueryDebounce);
         const data = res.data
         setProducts(data)
       })
     }
     fetchProducts()
-  }, [])
+  }, [searchQueryDebounce])
 
   return (
     <div className="p-6 space-y-6">
@@ -105,27 +131,53 @@ export default function ProductManagement() {
         <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="flex-1 w-full md:w-auto">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
-                <Input
-                  placeholder="Tìm kiếm sản phẩm..."
-                  className="pl-10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <div className="relative flex">
+                <div className='w-full'>
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+                  <Input
+                    placeholder="Tìm kiếm sản phẩm..."
+                    className="pl-10"
+                    value={searchQuery.name_cont || ''}
+                    onChange={(e) => setSearchQuery((prev)=>({...prev, name_cont: e.target.value}))}
+                  />
+                </div>
+
+                <Select
+                  onValueChange={(value)=>setSearchQuery((prev)=>({...prev, unit_eq: value}))}
+                >
+                  <SelectTrigger className="ml-2 w-[180px]">
+                    <SelectValue defaultValue="all" placeholder="Đơn vị" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="all">Tất cả đơn vị</SelectItem>
+                      {PRODUCT_UNITS.map((unit)=>(
+                        <SelectItem key={unit.value} value={unit.value}>{unit.label}</SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  onValueChange={(value)=>handleChangeProductPrice(value)}
+                >
+                  <SelectTrigger className="ml-2 w-[180px]">
+                    <SelectValue defaultValue="all" placeholder="Giá" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="all">Tất cả</SelectItem>
+                      {PRODUCT_PRICE_RANGES.map((range)=>(
+                        <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
               </div>
             </div>
 
             <div className="flex gap-2 w-full md:w-auto">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                onClick={() => setFilterStatus(filterStatus === 'critical' ? 'all' : 'critical')}
-              >
-                <Filter size={16} />
-                Bộ lọc
-              </Button>
               { selectedFile == null ? 
               <Button
                 variant="outline"
@@ -194,7 +246,7 @@ export default function ProductManagement() {
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <tr key={product.id} className="border-b border-border hover:bg-muted/50 transition-colors">
                     <td className="py-3 px-4">{product.product_code}</td>
                     <td className="py-3 px-4 font-medium">{product.name}</td>
@@ -246,7 +298,7 @@ export default function ProductManagement() {
                 <ClipLoader size={30} color="#000000" />
               </div>
             )}
-            {!loading && filteredProducts.length === 0 && (
+            {!loading && products.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 Không tìm thấy sản phẩm nào
               </div>
@@ -256,7 +308,7 @@ export default function ProductManagement() {
 
         <CardContent className="border-t border-border pt-4">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Hiển thị {filteredProducts.length} / {products.length} sản phẩm</span>
+            <span>Hiển thị {products.length} / {products.length} sản phẩm</span>
           </div>
         </CardContent>
       </Card>
