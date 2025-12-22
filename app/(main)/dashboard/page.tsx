@@ -43,7 +43,7 @@ export default function Dashboard() {
             <div className="space-y-2">
               <Package />
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-foreground">{stats?.total_products}</span>
+                <span className="text-2xl font-bold text-foreground">{stats?.total_products.toLocaleString('vi-VN')}</span>
                 <span className="text-xs text-muted-foreground">Sản phẩm</span>
               </div>
             </div>
@@ -58,7 +58,7 @@ export default function Dashboard() {
             <div className="space-y-2">
               <Package2 />
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-foreground">{stats?.inventory_value}</span>
+                <span className="text-2xl font-bold text-foreground">{stats?.inventory_value.toLocaleString("vi-VN")}</span>
                 <span className="text-xs text-muted-foreground">VNĐ</span>
               </div> 
             </div>
