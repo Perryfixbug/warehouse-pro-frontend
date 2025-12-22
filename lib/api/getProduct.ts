@@ -6,7 +6,7 @@ export function getProduct(search: {
     unit_eq?: string;
     price_per_unit_gteq?: number;
     price_per_unit_lteq?: number;
-}) {
+}, page?: number) {
     const query = buildSearchQuery(search);
-    return fetchClient(`/products?${query}`);
+    return fetchClient(`/products?page=${page}&${query}`);
 }

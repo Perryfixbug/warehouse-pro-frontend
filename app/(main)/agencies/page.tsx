@@ -12,14 +12,19 @@ import { AgencyForm } from '@/components/agencies/agency-form'
 import { AgencyDetailsModal } from '@/components/agencies/agency-details-modal'
 import { getAgencies } from '@/lib/api/getAgencies'
 import { dateToLocaleString } from '@/lib/utils/dateToLocaleString'
+import { useLoading } from '@/hooks/useLoading'
+import { ClipLoader } from 'react-spinners'
+import Pagination from '@/components/layout/paginattion'
 
 export default function AgencyManagement() {
   const [agencies, setAgencies] = useState<Agency[]>([])
   const [selectedAgency, setSelectedAgency] = useState<Agency | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState<AgencySearchQuery>({})
-
   const searchQueryDebounce = useDebounce(searchQuery, 500)
+  const {loading, withLoading} = useLoading()
+  const [total_pages, setTotalPages] = useState(1)
+  const [page, setPage] = useState(1)
 
   const handleAddAgency = async (data: Omit<Agency, 'id' | 'created_at'>) => {
     const res = await fetchClient('/agencies', 'POST', {
@@ -48,10 +53,19 @@ export default function AgencyManagement() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getAgencies(searchQueryDebounce)
-      setAgencies(res.data)
+      withLoading(async () => {
+        const res = await getAgencies(searchQueryDebounce, page)
+        const data = res.data
+        const meta = res.meta
+        setTotalPages(meta.total_pages)
+        setAgencies(data)
+      })
     }
     fetchData()
+  }, [searchQueryDebounce, page])
+
+  useEffect(() => {
+    setPage(1)
   }, [searchQueryDebounce])
 
   return (
@@ -75,12 +89,12 @@ export default function AgencyManagement() {
                   className="pl-10"
                   placeholder="Tìm kiếm tên, email..."
                   value={searchQuery.name_or_phone_or_email_cont || ''}
-                  onChange={e =>
+                  onChange={e => {
                     setSearchQuery(prev => ({
                       ...prev,
                       name_or_phone_or_email_cont: e.target.value,
                     }))
-                  }
+                  }}
                 />
               </div>
 
@@ -110,7 +124,7 @@ export default function AgencyManagement() {
                 </tr>
               </thead>
               <tbody>
-                {agencies.map(agency => (
+                {!loading && agencies.map(agency => (
                   <tr key={agency.id} className="border-b hover:bg-muted/50">
                     <td className="py-3 px-4 font-medium">{agency.name}</td>
                     <td className="py-3 px-4">{agency.email}</td>
@@ -153,12 +167,27 @@ export default function AgencyManagement() {
               </tbody>
             </table>
 
-            {agencies.length === 0 && (
+            {loading && (
+              <div className='flex justify-center items-center py-8'>
+                <ClipLoader size={30} color="#000000" />
+              </div>
+            )}
+
+            {!loading && agencies.length === 0 && (
               <div className="text-center py-6 text-muted-foreground">
                 Không có agency nào
               </div>
             )}
           </div>
+
+          {!loading && agencies.length > 0 && (
+            <Pagination meta={{
+              current_page: page,
+              total_pages: total_pages
+            }}
+            setPage={setPage}
+            />
+          )}
         </CardContent>
 
         {formOpen && (
