@@ -31,8 +31,6 @@ export default function AuthProvider ({children}: {children: React.ReactNode}){
       const res = await fetchClient("/auth/sign_in", "POST", {
         body: JSON.stringify({user: {email, password, captchaToken}})
       })
-      // Gán token vào localStorage
-      console.log(res);
       const data = res.data
       const token = res?.token
       localStorage.setItem("token", token)
