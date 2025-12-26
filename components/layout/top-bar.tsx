@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, User, Settings, LogOut, UserCog, Shield } from 'lucide-react'
+import { Search, User, Settings, LogOut, UserCog } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'

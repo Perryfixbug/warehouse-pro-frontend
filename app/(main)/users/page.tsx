@@ -17,6 +17,7 @@ import { dateToLocaleString } from '@/lib/utils/dateToLocaleString'
 import { useLoading } from '@/hooks/useLoading'
 import { ClipLoader } from 'react-spinners'
 import Pagination from '@/components/layout/paginattion'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([])
@@ -27,6 +28,7 @@ export default function UserManagement() {
   const { loading, withLoading } = useLoading()
   const [total_pages, setTotalPages] = useState(1)
   const [page, setPage] = useState(1)
+  const { info } = useAuth()
 
   const handleAddUser = async (data: Omit<User, 'id'>) => {
     const res = await fetchClient("/users", "POST", {
@@ -207,6 +209,8 @@ export default function UserManagement() {
                           <Eye size={16} />
                         </Button>
 
+                        { info?.role === "admin" && 
+                        <>
                         <Button 
                           variant="ghost" size="icon"
                           onClick={()=>{
@@ -225,6 +229,8 @@ export default function UserManagement() {
                         >
                           <Trash2 size={16} />
                         </Button>
+                        </>
+                        }
                       </div>
                     </td>
                   </tr>
