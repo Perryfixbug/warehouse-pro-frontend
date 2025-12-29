@@ -1,27 +1,14 @@
 import { redirect } from "next/navigation";
 import ResetForm from "@/app/(auth)/reset-password/reset-form";
+import { fetchServer } from "@/lib/api/fetchServer";
 
-export default async function ResetPasswordPage({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
-  const token = searchParams.token;
+export default async function ResetPasswordPage({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
+  const params = await searchParams;
+  const token = params.token || "";
 
-  if (!token) {
-    redirect("/login");
-  }
-
-  // Check token từ server
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/auth/password/new?reset_password_token=${token}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    }
-  );
-
-  if (!res.ok) {
-    redirect("/login");
+  const res = await fetchServer(`/auth/password/new?reset_password_token=${token}`)
+  if(!res || res.status !== "success"){
+    redirect('/login')
   }
 
   return (

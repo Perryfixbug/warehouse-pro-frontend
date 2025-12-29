@@ -13,24 +13,30 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { fetchClient } from "@/lib/api/fetchClient";
+import { useLoading } from "@/hooks/useLoading";
+import { ClipLoader } from "react-spinners";
 
 export default function ResetForm({ token }: { token: string }) {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const {loading, withLoading} = useLoading()
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await fetchClient("/auth/password", "PUT", {
+    withLoading(async()=> {
+      await fetchClient("/auth/password", "PUT", {
       body: JSON.stringify({
         reset_password_token: token,
         password,
         password_confirmation: passwordConfirmation,
       }),
+      
+      })
+      router.push("/login");
     });
 
-    router.push("/login");
   };
 
   return (
@@ -70,7 +76,8 @@ export default function ResetForm({ token }: { token: string }) {
             />
           </div>
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading && <ClipLoader size={15} color="#ffffff" className="mr-2" />}
             Xác nhận
           </Button>
         </form>

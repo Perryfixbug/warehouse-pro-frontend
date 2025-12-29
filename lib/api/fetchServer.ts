@@ -1,21 +1,33 @@
-export async function fetchServer(endpoint: string, method = "GET", options: RequestInit = {}) {
-  const url = `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`  
-  try {
+export async function fetchServer(
+  endpoint: string,
+  method: string = "GET",
+  options: RequestInit = {}
+) {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`;
+  try{
     const res = await fetch(url, {
-      ...options,
-      method: method,
-      headers: { "Content-Type": "application/json" },
-      cache: "no-store", 
+      method,
+      cache: "no-store",
       next: { revalidate: 0 },
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
     });
 
-    if (!res.ok) {
-      throw new Error(`Server Fetch Error: ${res.status}`);
-    }
+    if (res.status === 204) return null;
 
-    return await res.json();
-  } catch (error) {
-    console.error("fetchServer Error:", error);
-    throw error;
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw {
+        httpStatus: res.status,
+        data,
+      };
+    }
+    return data;
+  }catch(e){
+    console.log(e)
   }
 }
