@@ -14,9 +14,9 @@ export async function fetchClient(endpoint: string, method = "GET", options: Req
     if (!res.ok) {
       throw new Error(`Client Fetch Error: ${res.status}`);
     }
-    return await res?.json();
+    if(res.status == 204) return
+    return await res.json()
   } catch (error) {
     console.error("fetchClient Error:", error);
-    throw error;
   }
 }

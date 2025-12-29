@@ -90,23 +90,19 @@ export default function ProductManagement() {
     }
   }
 
-  const handleSendCSV = async ()=>{
+  const handleSendCSV = ()=>{
     if(!selectedFile) return
     const formData = new FormData()
     formData.append('file', selectedFile)
     formData.append('type', "Product")
-    try{
+    withLoading( async ()=> {
       await fetchClient('/csv', "POST", 
-        {
-          body: formData,
-          headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-        }
-      )
-      
+      {
+        body: formData,
+        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+      })
       setSelectedFile(null)
-    }catch(e){
-      console.log(e)
-    }
+      })   
   }
 
   useEffect(()=>{
@@ -225,6 +221,7 @@ export default function ProductManagement() {
                 </Button>:
                 <div className='flex gap-2'>
                   <Button
+                    disabled={loading}
                     size='sm'
                     onClick={handleSendCSV}
                   >

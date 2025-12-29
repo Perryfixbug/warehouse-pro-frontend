@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Icon, Package, Package2, PackageOpen, ReceiptText } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Package, Package2, PackageOpen, ReceiptText } from 'lucide-react'
 import { OrderChart } from '@/components/dashboard/order-chart'
 import { AlertList } from '@/components/dashboard/alert-list'
 import { QuickActions } from '@/components/dashboard/quick-actions'
