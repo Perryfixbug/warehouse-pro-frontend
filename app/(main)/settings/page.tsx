@@ -3,9 +3,7 @@
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Settings, Bell, Lock, Palette, Save } from 'lucide-react'
-import { fetchClient } from '@/lib/api/fetchClient'
 
 interface SettingsForm {
   language: string
@@ -24,6 +22,7 @@ export default function SettingPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSettingChange = (key: keyof SettingsForm, value: any) => {
     setSettings(prev => ({
       ...prev,

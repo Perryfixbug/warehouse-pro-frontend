@@ -62,12 +62,12 @@ export default function OrderManagement() {
   const getTypeLabel = (type: string) =>
     type === "ImportOrder" ? "Nhập Hàng" : "Xuất Hàng";
 
-  let importTotal = useMemo(()=> orders
+  const importTotal = useMemo(()=> orders
     .filter((o) => o.type === "ImportOrder")
     .reduce((sum, o) => sum + o.total_price, 0),
   [orders]);
 
-  let exportTotal = useMemo(()=> orders
+  const exportTotal = useMemo(()=> orders
     .filter((o) => o.type === "ExportOrder")
     .reduce((sum, o) => sum + o.total_price, 0),
   [orders]);
@@ -85,10 +85,11 @@ export default function OrderManagement() {
       })
     }
     fetchOrder()
-  }, [searchQueryDebounce, page]);
+  }, [searchQueryDebounce, page, withLoading]);
 
   useEffect(() => {
-    setPage(1)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage(prev => (prev === 1 ? prev : 1))
   }, [searchQueryDebounce])
 
   return (
@@ -177,6 +178,7 @@ export default function OrderManagement() {
         <CardContent>
           <Tabs
             value={activeTab}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onValueChange={(v) => setActiveTab(v as any)}
             className="w-full"
           >

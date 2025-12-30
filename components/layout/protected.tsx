@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { tokenStore } from "@/lib/api/tokenStore"
 
 export default function ProtectedLayout({
   children,
@@ -12,7 +13,7 @@ export default function ProtectedLayout({
   const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
-    const t = localStorage.getItem("token")
+    const t = tokenStore.get()
     if (!t) {
       router.replace("/login")
       return

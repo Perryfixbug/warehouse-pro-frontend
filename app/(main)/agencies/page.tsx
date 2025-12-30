@@ -62,10 +62,11 @@ export default function AgencyManagement() {
       })
     }
     fetchData()
-  }, [searchQueryDebounce, page])
+  }, [searchQueryDebounce, page, withLoading])
 
   useEffect(() => {
-    setPage(1)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage(prev => (prev === 1 ? prev : 1))
   }, [searchQueryDebounce])
 
   return (

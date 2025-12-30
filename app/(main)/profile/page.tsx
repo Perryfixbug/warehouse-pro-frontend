@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Edit2, Save, X } from 'lucide-react'
 import { fetchClient } from '@/lib/api/fetchClient'
 import { useAuth } from '@/hooks/useAuth'
 

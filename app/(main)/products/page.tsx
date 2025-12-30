@@ -16,6 +16,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { useLoading } from '@/hooks/useLoading'
 import { ClipLoader } from 'react-spinners'
 import Pagination from '@/components/layout/paginattion'  
+import { tokenStore } from '@/lib/api/tokenStore'
 
 export default function ProductManagement() {
   const [products, setProducts] = useState<Product[]>([])
@@ -95,11 +96,12 @@ export default function ProductManagement() {
     const formData = new FormData()
     formData.append('file', selectedFile)
     formData.append('type', "Product")
+    const token = tokenStore.get()
     withLoading( async ()=> {
       await fetchClient('/csv', "POST", 
       {
         body: formData,
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        headers: { "Authorization": token ? `Bearer ${token}` : "" }
       })
       setSelectedFile(null)
       })   
@@ -118,10 +120,11 @@ export default function ProductManagement() {
       })
     }
     fetchProducts()
-  }, [searchQueryDebounce, page])
+  }, [searchQueryDebounce, page, withLoading])
 
   useEffect(() => {
-    setPage(1)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage(prev => (prev === 1 ? prev : 1))
   }, [searchQueryDebounce])
 
   return (
