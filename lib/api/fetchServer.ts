@@ -27,7 +27,6 @@ export async function fetchServer(
       };
     }
     return data;
-  }catch(e){
-    console.log(e)
+  }catch{
   }
 }

@@ -1,9 +1,12 @@
 "use client"
 
 import { fetchClient } from "@/lib/api/fetchClient";
+import { tokenStore } from "@/lib/api/tokenStore";
 import { User } from "@/type/type";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
+import { refreshAccessToken } from "@/lib/api/fetchClient"
+import { useLoading } from "./useLoading";
 
 export interface AuthContextType {
   isAuth: boolean,
@@ -23,6 +26,7 @@ export const useAuth = () => useContext(AuthContext)
 export default function AuthProvider ({children}: {children: React.ReactNode}){
   const [info, setInfo] = useState<User | null>(null)
   const [isAuth, setIsAuth] = useState<boolean>(false)
+  const {withLoading} = useLoading()
   const { replace } = useRouter()
 
   const login = async (email: string, password: string, captchaToken: string)=>{
@@ -33,13 +37,13 @@ export default function AuthProvider ({children}: {children: React.ReactNode}){
       })
       const data = res.data
       const token = res?.token
-      localStorage.setItem("token", token)
+      tokenStore.set(token)
       // Cập nhật giao diện
       setInfo(data)
       setIsAuth(true)
       replace('/')
-    }catch(e){
-      console.log(e)
+    }catch{
+      alert("Đăng nhập thất bại")
       setInfo(null)
       setIsAuth(false)
     }
@@ -48,13 +52,12 @@ export default function AuthProvider ({children}: {children: React.ReactNode}){
   const logout = ()=>{
     try{
       fetchClient("/auth/sign_out", "DELETE")
-    }catch(e){
-      console.log(e)
+    }catch{
     }finally{
-      localStorage.removeItem("token")
+      tokenStore.clear()
+      replace('/login')
       setInfo(null)
       setIsAuth(false)
-      replace('/login')
     }
   }
 
@@ -63,17 +66,25 @@ export default function AuthProvider ({children}: {children: React.ReactNode}){
       const res = await fetchClient('/me')
       const data = res.data;
       setInfo(data);
-      setIsAuth(false)
-    } catch(e) {
-      console.log(e);
+      setIsAuth(true)   
+    } catch{
       setInfo(null);
       setIsAuth(false)
     }
   };
 
+
   useEffect(()=>{
-    fetchMe()
-  }, [])
+    withLoading(async () => {
+      try {
+        await refreshAccessToken()
+        await fetchMe()
+      } catch{
+        setInfo(null)
+        setIsAuth(false)
+      }
+    })
+  }, [withLoading])
 
   return(
     <AuthContext.Provider value={{ info, isAuth, login, logout }}>
