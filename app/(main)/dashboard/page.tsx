@@ -24,7 +24,7 @@ export default function Dashboard() {
       })
     } 
     fetchStats()
-  }, [withLoading])
+  }, [])
 
   return loading ? 
     <div className='flex w-full h-[80vh] justify-center items-center'>

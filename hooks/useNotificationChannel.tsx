@@ -12,7 +12,6 @@ export function useNoficationChannel(onReceived: (noti: Notification) => void) {
   useEffect(() => {
     const token = tokenStore.get()
     if (!token) {
-      console.warn("No token → skip cable connect");
       return;
     }
     // Import động ActionCable

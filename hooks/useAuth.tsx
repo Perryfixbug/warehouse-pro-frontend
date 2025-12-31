@@ -84,7 +84,8 @@ export default function AuthProvider ({children}: {children: React.ReactNode}){
         setIsAuth(false)
       }
     })
-  }, [withLoading])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return(
     <AuthContext.Provider value={{ info, isAuth, login, logout }}>
