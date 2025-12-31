@@ -4,10 +4,12 @@ import { Bell } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Notification } from '@/type/type'
 import { useNoficationChannel } from '@/hooks/useNotificationChannel'
+import { useAuth } from '@/hooks/useAuth'
 
 const NotificationBell = () => {
   const [notiOpen, setNotiOpen] = useState(false)
   const [notiContent, setNotiContent] = useState<Notification[]>([])
+  const {isAuth} = useAuth()
 
   useNoficationChannel((newNoti)=>{
     setNotiContent(prev=>[newNoti, ...prev])
@@ -30,13 +32,14 @@ const NotificationBell = () => {
   }
 
   useEffect(()=>{
+    if(!isAuth) return
     async function fetchNotiContent(){
       const res = await fetchClient('/notifications')
       const data = res.data
       setNotiContent(data)
     }
     fetchNotiContent()
-  },[])
+  },[isAuth])
 
   return (
     <div className="relative">

@@ -3,7 +3,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { fetchClient } from '@/lib/api/fetchClient'
 import { Alert } from '@/type/type'
-import { AlertTriangle, CheckCircle, AlertCircle, Bell } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 export function AlertList({ limit }: { limit?: number }) {
@@ -18,32 +17,6 @@ export function AlertList({ limit }: { limit?: number }) {
     }
     fetchAlerts()
   }, [])
-  
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case 'critical':
-        return <AlertTriangle className="text-destructive" size={18} />
-      case 'warning':
-        return <AlertCircle className="text-accent" size={18} />
-      case 'info':
-        return <Bell className="text-chart-2" size={18} />
-      default:
-        return <CheckCircle className="text-chart-2" size={18} />
-    }
-  }
-
-  const getAlertBgColor = (type: string) => {
-    switch (type) {
-      case 'critical':
-        return 'bg-destructive/5 border-destructive/20'
-      case 'warning':
-        return 'bg-accent/5 border-accent/20'
-      case 'info':
-        return 'bg-chart-2/5 border-chart-2/20'
-      default:
-        return 'bg-muted/5 border-muted/20'
-    }
-  }
 
   return (
     <Card>

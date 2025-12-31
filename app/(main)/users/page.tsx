@@ -71,10 +71,12 @@ export default function UserManagement() {
       })
     }
     fetchUser()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQueryDebounce, page])
 
   useEffect(() => {
-    setPage(1)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage(prev => (prev === 1 ? prev : 1))
   }, [searchQueryDebounce])
 
   return (

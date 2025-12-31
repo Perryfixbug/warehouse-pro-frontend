@@ -3,15 +3,15 @@
 import { useEffect, useRef } from "react";
 import { Notification } from "@/type/type";
 import type  ActionCable from "actioncable";
+import { tokenStore } from "@/lib/api/tokenStore";
 
 export function useNoficationChannel(onReceived: (noti: Notification) => void) {
   const cableRef = useRef<ActionCable.Cable | null>(null);
   const subscriptionRef = useRef<ActionCable.Channel | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = tokenStore.get()
     if (!token) {
-      console.warn("No token → skip cable connect");
       return;
     }
     // Import động ActionCable
@@ -25,13 +25,10 @@ export function useNoficationChannel(onReceived: (noti: Notification) => void) {
         { channel: "NotificationsChannel" },
         {
           connected() {
-            console.log("Đã kết nối tới notifications");
           },
           disconnected() {
-            console.log("Đã ngắt kết nối");
           },
           rejected() {
-            console.log("Connection rejected");
           },
           received(data: Notification) {
             onReceived(data);
