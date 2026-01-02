@@ -50,7 +50,20 @@ export function OrderForm({ onSave, onClose }: OrderFormProps) {
     if (!selectedProduct || quantity < 1) return;
 
     const product = products.find((p) => p.id === selectedProduct);
-    if(!product) return
+    if (!product) return;
+
+    const existing = items.find((i) => i.product_id === product.id);
+    const alreadyAddedQty = existing ? existing.quantity : 0;
+
+    if (
+      type === "ExportOrder" &&
+      quantity + alreadyAddedQty > product.quantity
+    ) {
+      alert(
+        `Số lượng xuất vượt tồn kho.\nTồn kho: ${product.quantity}\nĐã chọn: ${alreadyAddedQty}`
+      );
+      return;
+    }
 
     const newItem: OrderedItem = {
       product_id: product.id,
@@ -59,7 +72,6 @@ export function OrderForm({ onSave, onClose }: OrderFormProps) {
       total: product.price_per_unit * quantity,
     };
 
-    const existing = items.find((i) => i.product_id === product.id);
     if (existing) {
       setItems(
         items.map((i) =>
@@ -80,6 +92,7 @@ export function OrderForm({ onSave, onClose }: OrderFormProps) {
     setQuantity(1);
   };
 
+
   const handleRemoveItem = (productId: number) => {
     setItems(items.filter((i) => i.product_id !== productId));
   };
@@ -90,19 +103,35 @@ export function OrderForm({ onSave, onClose }: OrderFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!agencyId || items.length === 0) {
       alert("Vui lòng chọn agency và thêm sản phẩm");
       return;
     }
 
+    if (type === "ExportOrder") {
+      for (const item of items) {
+        const product = products.find(p => p.id === item.product_id);
+        if (!product) continue;
+
+        if (item.quantity > product.quantity) {
+          alert(
+            `Sản phẩm "${product.name}" vượt tồn kho (${product.quantity})`
+          );
+          return;
+        }
+      }
+    }
+
     const payload = {
-      type: type,
+      type,
       agency_id: agencyId,
       ordered_products_attributes: items.map((i) => ({
         product_id: i.product_id,
         quantity: i.quantity,
       })),
     };
+
     onSave(payload);
   };
 
